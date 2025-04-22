@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(title = ${'Kết quả kiểm tra'})}"></head>
+<body class="hold-transition sidebar-mini layout-fixed">
+
+<div class="wrapper">
+
+    <!-- Preloader -->
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <!-- Main Sidebar Container -->
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser=${currentUser})}"></aside>
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Kết quả kiểm tra</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active"><a th:href="@{/gdv/customer-checking}">Kiểm tra khách hàng</a>
+                            </li>
+                            <li class="breadcrumb-item active">Kết quả</li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div><!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Thông tin khách hàng</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <table class="table">
+                        <tr>
+                            <th>Họ và Tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Địa chỉ</th>
+                            <th>Thành phố</th>
+                            <th>Quốc tịch</th>
+                            <th>CCCD/MST</th>
+                            <th>Hộ chiếu</th>
+                            <th>Loại khách hàng</th>
+                        </tr>
+
+                        <tr>
+                            <td th:text="${customer.name}"></td>
+                            <td th:text="${customer.dob}"></td>
+                            <td th:text="${customer.address}"></td>
+                            <td th:text="${customer.city}"></td>
+                            <td th:text="${customer.country}"></td>
+                            <td th:text="${customer.nationalId}"></td>
+                            <td th:text="${customer.passport}"></td>
+                            <td th:text="${customer.type}"></td>
+
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="mb-2">
+                    <form id="customer-form" th:action="@{/gdv/save-customer?status=saved}" method="post" th:object="${customer}">
+
+                        <input type="hidden" class="form-controler" id="id" th:field="*{id}">
+                        <input type="hidden" class="form-control" id="name" th:field="*{name}">
+                        <input type="hidden" class="form-control" id="dob" th:field="*{dob}">
+                        <input type="hidden" class="form-control" id="address" th:field="*{address}">
+                        <input type="hidden" class="form-control" id="city" th:field="*{city}">
+                        <input type="hidden" class="form-control" id="country" th:field="*{country}">
+                        <input type="hidden" class="form-control" id="nationalId" th:field="*{nationalId}">
+                        <input type="hidden" class="form-control" id="passport" th:field="*{passport}">
+                        <input type="hidden" class="form-control" id="type" th:field="*{type}">
+                        <div class="form-group">
+                            <label>Phân loại khách hàng</label>
+                            <select class="form-control select2bs4" style="width: 100%;"
+                                    th:field="*{riskClassification}">
+                                <option selected="selected" value="low">Thấp</option>
+                                <option value="medium">Trung bình</option>
+                                <option value="high">Cao</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Lưu khách hàng</button>
+                            <button  class="btn btn-warning" onclick="requestChecking()">Yêu cầu nhận dạng</button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="card"
+                     th:classappend="${checkingResult.blacklists.isEmpty()} ? 'card-success' : 'card-danger'">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${checkingResult.result}"></h3>
+                    </div>
+
+                    <table class="table" th:if="${!checkingResult.blacklists.isEmpty()}">
+                        <tr>
+                            <th>Họ và Tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Địa chỉ</th>
+                            <th>Quốc tịch</th>
+                            <th>CCCD/MST</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>Lý do</th>
+                            <th>Tình trạng</th>
+                            <th>Nguồn</th>
+                            <th>Phân loại</th>
+                        </tr>
+                        <tr th:each="it : ${checkingResult.blacklists}">
+                            <td th:text="${it.name}"
+                                th:classappend="${#strings.contains(it.name,customer.name)}? 'text-danger'"></td>
+                            <td th:text="${it.dob}"></td>
+                            <td th:text="${it.address}"></td>
+                            <td th:text="${it.country}"></td>
+                            <td th:text="${it.nationalId}" th:classappend="${it.nationalId == customer.nationalId} ? 'text-danger'"></td>
+                            <td th:text="${it.phoneNumber}"></td>
+                            <td th:text="${it.email}"></td>
+                            <td th:text="${it.reason}"></td>
+                            <td th:text="${it.status}"></td>
+                            <td th:text="${it.source}"></td>
+                            <td th:text="${it.type}"></td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div><!-- /.content-wrapper -->
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<script>
+    function requestChecking (){
+        let form = document.getElementById("customer-form");
+        form.action = "/gdv/checking-request";
+        form.submit();
+    }
+</script>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+
+</body>
+</html>

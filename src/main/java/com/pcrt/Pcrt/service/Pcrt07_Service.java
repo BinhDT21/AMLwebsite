@@ -1,0 +1,228 @@
+package com.pcrt.Pcrt.service;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
+import com.pcrt.Pcrt.entities.PCRT_06;
+import com.pcrt.Pcrt.entities.PCRT_07;
+import com.pcrt.Pcrt.entities.User;
+import com.pcrt.Pcrt.repository.Pcrt06Repository;
+import com.pcrt.Pcrt.repository.Pcrt07Repository;
+import com.pcrt.Pcrt.repository.query.Pcrt07RepositoryQuery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.parameters.P;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class Pcrt07_Service {
+
+    @Autowired
+    private Cloudinary cloudinary;
+    @Autowired
+    private Pcrt07Repository pcrt07Repository;
+    @Autowired
+    private Pcrt07RepositoryQuery pcrt07RepositoryQuery;
+    @Autowired
+    private UserService userService;
+
+
+    public Page<PCRT_07> getListPCRT_07 (Map<String, String> params){
+        List<PCRT_07> pcrt07List = pcrt07RepositoryQuery.getListPCRT_07(params);
+        int page = params.get("page")!=null?Integer.parseInt(params.get("page")):0;
+        long totalPages = pcrt07RepositoryQuery.countPCRT_07();
+        return new PageImpl<>(pcrt07List, PageRequest.of(page,10), totalPages);
+    }
+
+    public String uploadPCRT07(PCRT_07 pcrt_07) throws IOException {
+        String outputPath = "form/pcrt-07/" + pcrt_07.getId() + ".pdf";
+
+        // Tạo tài liệu PDF
+        PdfWriter writer = new PdfWriter(outputPath);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc);
+
+        // Sử dụng font Unicode để hỗ trợ tiếng Việt
+        PdfFont font = PdfFontFactory.createFont("static\\font\\arial.ttf", "Identity-H");
+
+        // tiêu đề tổ chức
+        ImageData imageData = ImageDataFactory.create("https://res.cloudinary.com/dwdvnztnn/image/upload/v1742350980/PCRT/aml_form_header_uj0l0n.png");
+        Image image = new Image(imageData);
+        document.add(image);
+
+        // Tiêu đề chính
+        Paragraph title = new Paragraph("Danh sách khách hàng, giao dịch có rủi ro cao không cần thu thập bổ sung thông tin")
+                .setFont(font)
+                .setFontSize(14)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER);
+        document.add(title);
+
+        //bang pcrt07
+        Table bangPCRT07 = new Table(10);
+        bangPCRT07.setWidth(UnitValue.createPercentValue(100));
+
+        Cell cellSTT = new Cell(2, 1).add(new Paragraph("STT").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+        Cell cellNgayThucHienGiaoDich = new Cell(2, 1).add(new Paragraph("Ngày thực hiện giao dịch").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+        Cell cellTenKhachHang = new Cell(2, 1).add(new Paragraph("Tên khách hàng").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+        Cell cellDiaChi = new Cell(2, 1).add(new Paragraph("Địa chỉ").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+        Cell cellGiayToNhanDang = new Cell(1, 4).add(new Paragraph("Giấy tờ nhận dạng").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+        Cell cellTongSoTienGiaoDichTrongNgay = new Cell(2, 1).add(new Paragraph("Tổng số tiền giao dịch trong ngày").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+        Cell cellTangSuat = new Cell(2, 1).add(new Paragraph("Tầng suất giao dịch trong ngày").setFont(font).setTextAlignment(TextAlignment.CENTER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+
+        Cell cellSoCMND = new Cell(1, 1).add(new Paragraph("Số CMND/CCCD").setFont(font).setTextAlignment(TextAlignment.CENTER));
+        Cell cellSoHoChieu = new Cell(1, 1).add(new Paragraph("Số hộ chiếu").setFont(font).setTextAlignment(TextAlignment.CENTER));
+        Cell cellSoDangKD = new Cell(1, 1).add(new Paragraph("Số đăng KD").setFont(font).setTextAlignment(TextAlignment.CENTER));
+        Cell cellMaSoThue = new Cell(1, 1).add(new Paragraph("Mã số thuế").setFont(font).setTextAlignment(TextAlignment.CENTER));
+
+        bangPCRT07.addCell(cellSTT);
+        bangPCRT07.addCell(cellNgayThucHienGiaoDich);
+        bangPCRT07.addCell(cellTenKhachHang);
+        bangPCRT07.addCell(cellDiaChi);
+        bangPCRT07.addCell(cellGiayToNhanDang);
+        bangPCRT07.addCell(cellTongSoTienGiaoDichTrongNgay);
+        bangPCRT07.addCell(cellTangSuat);
+
+        bangPCRT07.addCell(cellSoCMND);
+        bangPCRT07.addCell(cellSoHoChieu);
+        bangPCRT07.addCell(cellSoDangKD);
+        bangPCRT07.addCell(cellMaSoThue);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        //duyet qua pcrt06 list để tạo dòng
+        for (int i = 0; i < pcrt_07.getItemList().size(); i++) {
+            Cell cellId = new Cell().add(new Paragraph(String.valueOf(i + 1)).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellTransactionDate = new Cell().add(new Paragraph(formatter.format(pcrt_07.getCreatedDate())).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellCustomerName = new Cell().add(new Paragraph(pcrt_07.getItemList().get(i).getCustomer().getName()).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellCustomerAddress = new Cell().add(new Paragraph(pcrt_07.getItemList().get(i).getCustomer().getAddress()).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellNationalId = new Cell().add(new Paragraph(pcrt_07.getItemList().get(i).getCustomer().getNationalId()).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellPassport = new Cell().add(new Paragraph(pcrt_07.getItemList().get(i).getCustomer().getPassport()).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellSDKD = new Cell();
+            Cell cellVatCode = new Cell();
+            Cell cellAmount = new Cell().add(new Paragraph(String.valueOf(pcrt_07.getItemList().get(i).getAmount())).setTextAlignment(TextAlignment.CENTER).setFont(font));
+            Cell cellFrequency = new Cell().add(new Paragraph(String.valueOf(pcrt_07.getItemList().get(i).getFrequency())).setTextAlignment(TextAlignment.CENTER).setFont(font));
+
+            bangPCRT07.addCell(cellId);
+            bangPCRT07.addCell(cellTransactionDate);
+            bangPCRT07.addCell(cellCustomerName);
+            bangPCRT07.addCell(cellCustomerAddress);
+            bangPCRT07.addCell(cellNationalId);
+            bangPCRT07.addCell(cellPassport);
+            bangPCRT07.addCell(cellSDKD);
+            bangPCRT07.addCell(cellVatCode);
+            bangPCRT07.addCell(cellAmount);
+            bangPCRT07.addCell(cellFrequency);
+        }
+        //
+        document.add(bangPCRT07);
+
+
+        //
+        Table bangChuKyCuaCEP = new Table(3);
+        bangChuKyCuaCEP.setWidth(UnitValue.createPercentValue(100));
+
+
+        Cell cellGDV = new Cell().add(new Paragraph("Giao dịch viên").setFont(font).setBold().setFontSize(12))
+                .setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER);
+        Cell cellKSV = new Cell().add(new Paragraph("Kiểm soát viên").setFont(font).setBold().setFontSize(12))
+                .setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER);
+        Cell cellAdmin = new Cell().add(new Paragraph("Tổng giám đốc/Giám đốc chi nhánh/\nTrưởng phòng giao dịch").setFont(font).setBold().setFontSize(12))
+                .setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER);
+        bangChuKyCuaCEP.addCell(cellGDV);
+        bangChuKyCuaCEP.addCell(cellKSV);
+        bangChuKyCuaCEP.addCell(cellAdmin);
+
+        Cell cellGDVSignature = new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER);
+        Cell cellKSVSignature = new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER);
+        Cell cellAdminSignature = new Cell().setTextAlignment(TextAlignment.CENTER).setBorder(Border.NO_BORDER);
+
+        if(pcrt_07.getGdv() != null)
+            cellGDVSignature.add(new Paragraph(pcrt_07.getGdv().getName()).setFont(font));
+        if(pcrt_07.getKsv() != null)
+            cellKSVSignature.add(new Paragraph(pcrt_07.getKsv().getName()).setFont(font));
+        if(pcrt_07.getManager() != null)
+            cellAdminSignature.add(new Paragraph(pcrt_07.getManager().getName()).setFont(font));
+
+        bangChuKyCuaCEP.addCell(cellGDV);
+        bangChuKyCuaCEP.addCell(cellKSV);
+        bangChuKyCuaCEP.addCell(cellAdmin);
+
+        bangChuKyCuaCEP.addCell(cellGDVSignature);
+        bangChuKyCuaCEP.addCell(cellKSVSignature);
+        bangChuKyCuaCEP.addCell(cellAdminSignature);
+
+
+        document.add(bangChuKyCuaCEP);
+        document.close();
+        System.out.println("PDF tạo thành công!");
+
+
+        // tạo file sau đó đưa lên cloud
+        File f = new File(outputPath);
+
+        Map res = cloudinary.uploader().upload(f, ObjectUtils.asMap(
+                "resource_type", "auto",
+                "folder", "PCRT/PCRT-07"
+        ));
+
+        System.out.println("secure_url: " + res.get("secure_url").toString());
+        return res.get("secure_url").toString();
+
+    }
+
+    public PCRT_07 getPcrt_07ById (int pcrt07Id){
+        return pcrt07Repository.findById(pcrt07Id).orElseThrow(RuntimeException::new);
+    }
+
+    public void deleteFilePath (int pcrt07Id) throws IOException {
+        PCRT_07 pcrt_07 = getPcrt_07ById(pcrt07Id);
+        String publicId = pcrt_07.getFilePath().replaceAll("^.*?/upload/v[0-9]+/", "")
+                .replaceAll("\\.[a-zA-Z0-9]+$", "");
+        Map res = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+
+        pcrt_07.setFilePath(null);
+        pcrt07Repository.save(pcrt_07);
+    }
+
+    public void updatePCRT07 (int pcrt07Id) throws IOException {
+        PCRT_07 pcrt_07 = getPcrt_07ById(pcrt07Id);
+        deleteFilePath(pcrt07Id);
+
+        User currentUser = userService.getCurrentUser();
+        switch (currentUser.getRole()){
+            case "GDV":
+                pcrt_07.setGdv(currentUser);break;
+            case "KSV":
+                pcrt_07.setKsv(currentUser);break;
+            case "AML_MANAGER":
+                pcrt_07.setManager(currentUser);break;
+        }
+
+        String filePath = uploadPCRT07(pcrt_07);
+
+        pcrt_07.setFilePath(filePath);
+        pcrt07Repository.save(pcrt_07);
+    }
+}

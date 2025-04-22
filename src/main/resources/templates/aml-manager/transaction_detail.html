@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title=${'Thông tin chi tiết giao dịch'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+
+    <div class="content-wrapper">
+
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary mt-2">
+                    <div class="card-header">
+                        <h3 class="card-title">Thông tin chi tiết giao dịch</h3>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- Error div  -->
+                        <div class="m-2 p-2">
+                            <div class="alert alert-danger" th:if="${amountErr != null}"
+                                 th:text="|Cảnh báo khách hàng đã giao dịch ${amountErr} VND trong ngày|"></div>
+
+                            <div class="alert alert-danger" th:if="${frequencyErr != null}"
+                                 th:text="|Cảnh báo khách hàng đã giao dịch ${frequencyErr} lần|"></div>
+                        </div>
+                        <!-- Error div  -->
+
+
+                        <div class="m-2 p-2 border border-2">
+
+                            <div class="mb-2">
+                                <b th:text="|Ngày lập giao dịch: ${transaction.createdDateTmp}|"></b><br>
+                                <b th:text="|Chi nhánh: ${transaction.branch.name}|"></b><br>
+                            </div>
+
+
+                            <b>A. Thông tin khách hàng thực hiện giao dịch:</b>
+                            <div class="mt-2 p-3">
+                                <div class="row border">
+                                    <p class="col"><b>1. Họ và tên: </b> <span
+                                            th:text="${transaction.customer.name}"></span></p>
+                                    <p class="col"><b>2. Ngày sinh: </b> <span
+                                            th:text="${transaction.customer.dob}"></span>
+                                    </p>
+
+                                    <p class="col"><b>3. Loại khách hàng: </b>
+                                        <span th:text="${transaction.customer.type}"></span>
+                                    </p>
+                                </div>
+                                <div class="row border">
+                                    <p class="col-4"><b>4. Số CCCD: </b> <span
+                                            th:text="${transaction.customer.nationalId}"></span></p>
+                                    <p class="col-4"><b>5. Số Passport: </b> <span
+                                            th:text="${transaction.customer.passport}"></span></p>
+                                </div>
+                                <div class="row border">
+                                    <p class="col"><b>6. Địa chỉ: </b><span
+                                            th:text="${transaction.customer.address}"></span></p>
+                                    <p class="col"><b>7. Thành phố: </b><span
+                                            th:text="${transaction.customer.city}"></span>
+                                    </p>
+                                    <p class="col"><b>8. Quốc tịch: </b><span
+                                            th:text="${transaction.customer.country}"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <b>B. Thông tin giao dịch:</b>
+                            <div class="mt-2 p-3">
+                                <b>1. Thông tin nhân viên lập giao dịch: </b>
+                                <div class="p-3">
+                                    <div class="row border">
+                                        <p class="col"><b>a. Họ và tên: </b><span
+                                                th:text="${transaction.user.name}"></span></p>
+                                        <p class="col"><b>b. Email: </b><span
+                                                th:text="${transaction.user.email}"></span></p>
+                                    </div>
+                                    <div class="row border">
+                                        <p class="col"><b>c. Số điện thoại: </b><span
+                                                th:text="${transaction.user.phoneNumber}"></span></p>
+                                        <p class="col"><b>d. Địa chỉ: </b><span
+                                                th:text="${transaction.user.address}"></span></p>
+                                    </div>
+                                </div>
+                                <b>2. Thông tin giao dịch: </b>
+                                <div class="p-3">
+                                    <div class="row border">
+                                        <p class="col"><b>a. Ngày giao dịch: </b><span
+                                                th:text="${transaction.createdDateTmp}"></span></p>
+                                        <p class="col"><b>b. Số tiền: </b><span
+                                                th:text="|${transaction.amount} VND|"></span></p>
+
+                                        <p th:if="${transaction.status} == pending" class="col"><b>C. Trạng thái giao
+                                            dịch: </b><span class="text-success">Đã hoàn tất</span></p>
+                                        <p th:if="${transaction.status} == staff_checkd" class="col"><b>C. Trạng thái
+                                            giao
+                                            dịch: </b><span class="text-success">Đã hoàn tất</span></p>
+                                        <p th:if="${transaction.status} == pass" class="col"><b>C. Trạng thái giao
+                                            dịch: </b><span class="text-info">Được phép tiếp tục giao dịch</span></p>
+                                        <p th:if="${transaction.status} == risk" class="col"><b>C. Trạng thái giao
+                                            dịch: </b><span class="text-warning">Giao dịch đáng ngờ</span></p>
+                                        <p th:if="${transaction.status} == archived" class="col"><b>C. Trạng thái giao
+                                            dịch: </b><span class="text-secondary">Đã lập báo cáo và lưu trữ</span></p>
+                                        <p th:if="${transaction.status} == report" class="col"><b>C. Trạng thái giao
+                                            dịch: </b><span class="text-danger">Yêu cầu lập báo cáo</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="float-right">
+                                <a th:href="@{/aml-manager/transactions?status=finish&customer-id={customerId}(customerId = ${transaction.customer.id})}"
+                                   class="btn btn-primary btn-sm">Tất cả giao dịch của khách hàng</a>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+        </section>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+
+</body>
+</html>

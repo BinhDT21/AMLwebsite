@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(title=${'Lọc quét khách hàng'})}">
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser=${currentUser})}"></aside>
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Kết quả lọc quét khách hàng</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">Lọc quét khách hàng</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card card-primary p-2">
+                            <div class="card-header">
+                                <h3 class="card-title">Danh sách lọc quét khách hàng</h3>
+                            </div>
+
+
+                            <div class="row mt-2 mb-2">
+
+                                <div class="col-4">
+                                    <select onchange="toggleTable()" class="custom-select "
+                                            id="inputGroupSelect">
+                                        <option value="0">Danh sách giao dịch lớn hơn mức thông thường</option>
+                                        <option value="1">Danh sách giao dịch với tần suất vượt quá 20 lần/ngày</option>
+                                    </select>
+                                </div>
+
+                                <div th:if="${reviewRecordsByAmount.size != 0}">
+                                    <input disabled th:value="${reviewRecordsByAmount[0].createdDateTmp}"
+                                           class="form-control "
+                                           type="text">
+                                </div>
+
+
+                                <button id="btnRefresh" class="btn btn-sm btn-primary ml-2">Refresh</button>
+
+                                <button style="display:none" id="btnRefreshSpinner" class="btn btn-primary" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Refreshing...
+                                </button>
+
+                            </div>
+
+
+                            <!--Table 1-->
+                            <table id="table1" class="table table-sm table-bordered mt-2 mb-2">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Thành phố</th>
+                                    <th>Quốc tịch</th>
+                                    <th>CCCD</th>
+                                    <th>Hộ chiếu</th>
+                                    <th>loại khách hàng</th>
+                                    <th>Độ rủi ro</th>
+                                    <th>Số tiền giao dịch</th>
+
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="transaction : ${reviewRecordsByAmount}">
+                                    <td>
+                                        <a th:onclick="|getCustomerDetail(${transaction.customer.id})|"
+                                           data-toggle="modal"
+                                           data-target="#modelCustomerInfo"
+                                           th:href="@{#}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> </a>
+                                    </td>
+                                    <td th:text="${transaction.customer.name}"></td>
+                                    <td th:text="${transaction.customer.dob}"></td>
+                                    <td th:text="${transaction.customer.address}"></td>
+                                    <td th:text="${transaction.customer.city}"></td>
+                                    <td th:text="${transaction.customer.country}"></td>
+                                    <td th:text="${transaction.customer.nationalId}"></td>
+                                    <td th:text="${transaction.customer.passport}"></td>
+                                    <td th:text="${transaction.customer.type}"></td>
+
+                                    <td th:if="${transaction.customer.riskClassification == 'low'}">Thấp</td>
+                                    <td class="text-warning"
+                                        th:if="${transaction.customer.riskClassification == 'medium'}">Trung bình
+                                    </td>
+                                    <td class="text-danger"
+                                        th:if="${transaction.customer.riskClassification == 'high'}">Cao
+                                    </td>
+
+                                    <td th:text="${transaction.amount}"></td>
+
+                                    <td class="d-flex">
+                                        <button th:data-nationalId="${transaction.customer.nationalId}"
+                                                th:onclick="|createReview(${transaction.customer.id},'pass')|"
+                                                class="updateListTransactionStatusBtn btn btn-danger btn-sm mx-1">Pass
+                                        </button>
+                                        <button th:data-nationalId="${transaction.customer.nationalId}"
+                                                th:onclick="|createReview(${transaction.customer.id},'fail')|"
+                                                class="updateListTransactionStatusBtn btn btn-secondary btn-sm mx-1">
+                                            Fail
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+
+                            <!--Table 2-->
+                            <table id="table2" style="display:none" class="table table-sm table-bordered mt-2 mb-2">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Thành phố</th>
+                                    <th>Quốc tịch</th>
+                                    <th>CCCD</th>
+                                    <th>Hộ chiếu</th>
+                                    <th>loại khách hàng</th>
+                                    <th>Độ rủi ro</th>
+                                    <th>Số giao dịch trong ngày</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="transaction : ${reviewRecordsByNumber}">
+                                    <td>
+                                        <a th:onclick="|getCustomerDetail(${transaction.customer.id})|"
+                                           data-toggle="modal"
+                                           data-target="#modelCustomerInfo"
+                                           th:href="@{#}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></a>
+                                    </td>
+                                    <td th:text="${transaction.customer.name}"></td>
+                                    <td th:text="${transaction.customer.dob}"></td>
+                                    <td th:text="${transaction.customer.address}"></td>
+                                    <td th:text="${transaction.customer.city}"></td>
+                                    <td th:text="${transaction.customer.country}"></td>
+                                    <td th:text="${transaction.customer.nationalId}"></td>
+                                    <td th:text="${transaction.customer.passport}"></td>
+                                    <td th:text="${transaction.customer.type}"></td>
+
+                                    <td th:if="${transaction.customer.riskClassification == 'low'}">Thấp</td>
+                                    <td class="text-warning"
+                                        th:if="${transaction.customer.riskClassification == 'medium'}">Trung bình
+                                    </td>
+                                    <td class="text-danger"
+                                        th:if="${transaction.customer.riskClassification == 'high'}">Cao
+                                    </td>
+
+                                    <td th:text="|${transaction.numberTransaction} lần|"></td>
+
+                                    <td class="d-flex">
+                                        <button th:data-nationalId="${transaction.customer.nationalId}"
+                                                th:onclick="|createReview(${transaction.customer.id},'pass')|"
+                                                class="updateListTransactionStatusBtn btn btn-sm btn-danger mx-1">Pass
+                                        </button>
+                                        <button th:data-nationalId="${transaction.customer.nationalId}"
+                                                th:onclick="|createReview(${transaction.customer.id},'fail')|"
+                                                class="updateListTransactionStatusBtn btn btn-sm btn-secondary mx-1">
+                                            Fail
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+
+<!--modal-->
+<div data-backdrop="static" class="modal fade" id="modelCustomerInfo">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+                <h5 class="modal-title">Thông tin chi tiết khách hàng</h5>
+                <button onclick="clearTable()" type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <div class="card card-primary">
+
+                    <div class="card-body">
+                        <div id="spinner" class="text-center">
+                            <div class="spinner-border text-primary"></div>
+                        </div>
+                        <b class="ml-3 text-primary">Thông tin khách hàng</b>
+                        <table class="table table-bordered" id="customerDetailTable">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Họ và Tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Địa chỉ</th>
+                                <th>Thành phố</th>
+                                <th>Quốc tịch</th>
+                                <th>CCCD/MST</th>
+                                <th>Hộ chiếu</th>
+                                <th>Loại khách hàng</th>
+                                <th>Phân loại</th>
+                            </tr>
+                            </thead>
+
+                            <tbody></tbody>
+                        </table>
+
+                        <div class="row mt-2 mb-2 ">
+                            <div class="col-6">
+                                <b class="ml-3 text-primary">Danh sách kết quả khảo sát</b>
+                                <div class="row">
+                                    <table class="table table-sm table-striped" id="kqksTable">
+                                        <tbody></tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <b class="ml-3 text-primary">Danh sách phiếu bổ sung thông tin</b>
+                                <div class="row">
+                                    <table class="table table-sm table-striped" id="additionalInfoFormTable">
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button onclick="clearTable()" type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    function toggleTable(){
+        var selectedValue = document.getElementById("inputGroupSelect").value;
+        document.getElementById("table1").style.display = (selectedValue === "0") ? "block" : "none";
+        document.getElementById("table2").style.display = (selectedValue === "1") ? "block" : "none";
+    }
+
+
+    function createReview (customerId,staffEvaluate){
+
+        fetch("http://localhost:8080/api/aml-staff/create-review", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                customerId : customerId,
+                staffEvaluate: staffEvaluate
+            })
+        }).then(response => console.log(response));
+    }
+
+
+    document.getElementById("table1").addEventListener("click", (event)=> {
+        if(event.target.classList.contains("updateListTransactionStatusBtn")){
+
+                let nationalId = event.target.getAttribute("data-nationalId");
+
+                fetch(`http://localhost:8080/api/aml-staff/transaction/list/${nationalId}/update-status`,{
+                    method: "POST"
+                }).then(response => {
+                    window.location.href = "/aml-staff/review-records?status=pending"
+                })
+
+
+        }
+    })
+
+    document.getElementById("table2").addEventListener("click", (event) => {
+        if(event.target.classList.contains("updateListTransactionStatusBtn")){
+
+            let nationalId = event.target.getAttribute("data-nationalId");
+
+            fetch(`http://localhost:8080/api/aml-staff/transaction/list/${nationalId}/update-status`,{
+                method: "POST"
+            }).then(response => {
+                window.location.href = "/aml-staff/review-records?status=pending"
+            })
+        }
+    })
+
+
+    document.getElementById("btnRefresh").addEventListener("click", () => {
+        let spinner = document.getElementById("btnRefreshSpinner");
+        let btnRefresh = document.getElementById("btnRefresh");
+
+        spinner.style.display = "";
+        btnRefresh.style.display = "none";
+
+        let currentUrl = new URL(window.location.href);
+
+        window.location.href = currentUrl.href;
+        console.log(currentUrl);
+    });
+
+</script>
+<script th:inline="javascript">
+    async function getCustomerDetail (customerId){
+
+        const spinner = document.getElementById("spinner");
+        const customerDetailTable = document.getElementById("customerDetailTable");
+        const tableBody = customerDetailTable.querySelector("tbody")
+
+        const kqksTable = document.getElementById("kqksTable");
+        const kqksTableBody = kqksTable.querySelector("tbody");
+
+        const additionalInfoFormTable = document.getElementById("additionalInfoFormTable");
+        const additionalInfoFormTableBody = additionalInfoFormTable.querySelector("tbody");
+
+        spinner.style.display = "block";
+        customerDetailTable.style.display = "none";
+
+        const response =await fetch(`http://localhost:8080/api/gdv/customer-detail/${customerId}`, {
+            method: 'GET'
+        })
+        const data = await response.json();
+
+        const newRow =  document.createElement("tr");
+
+        let riskClass = "text-danger";
+        let riskText = "cao";
+        if(data.customer.riskClassification === 'low'){
+            riskText = "thấp";
+            riskClass = "text-success";
+        }else if(data.customer.riskClassification === 'medium'){
+            riskText = "trung bình";
+            riskClass = "text-warning";
+        }
+        newRow.innerHTML = `
+            <td>${data.customer.id}</td>
+             <td>${data.customer.name}</td>
+             <td>${data.customer.dob}</td>
+             <td>${data.customer.address}</td>
+             <td>${data.customer.city}</td>
+             <td>${data.customer.country}</td>
+             <td>${data.customer.nationalId}</td>
+             <td>${data.customer.passport}</td>
+             <td>${data.customer.type}</td>
+             <td class="${riskClass}">${riskText}</td>`;
+
+
+        tableBody.appendChild(newRow);
+
+
+        if(data.kqksList.length > 0){
+            data.kqksList.forEach(createRowPerItem)
+        }
+        function createRowPerItem (item, index){
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${index}</td>
+                <td>Lần ${index + 1}</td>
+                <td><a target="_blank" class="btn btn-primary btn-sm" href="${item.filePath}">Xem</a></td></td>
+            `;
+            kqksTableBody.appendChild(newRow);
+        }
+
+        if(data.additionalInfoForm.length > 0){
+            data.additionalInfoForm.forEach(createRowPerItem2)
+        }
+        function createRowPerItem2 (item, index){
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${index}</td>
+                <td>Lần ${index + 1}</td>
+                <td><a target="_blank" class="btn btn-primary btn-sm" href="${item.filePath}">Xem</a></td></td>
+            `;
+            additionalInfoFormTableBody.appendChild(newRow);
+        }
+
+
+
+        spinner.style.display = "none";
+        customerDetailTable.style.display = "block";
+    }
+
+    function clearTable () {
+        const customerDetailTable = document.getElementById("customerDetailTable");
+        const tableBody = customerDetailTable.querySelector("tbody");
+
+        const kqksTable = document.getElementById("kqksTable");
+        const kqksTableBody = kqksTable.querySelector("tbody");
+
+        const additionalInfoFormTable = document.getElementById("additionalInfoFormTable");
+        const additionalInfoFormTableBody = additionalInfoFormTable.querySelector("tbody");
+
+        tableBody.innerHTML = "";
+        kqksTableBody.innerHTML ="";
+        additionalInfoFormTableBody.innerHTML ="";
+    }
+</script>
+
+</body>
+</html>

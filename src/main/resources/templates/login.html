@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(title=${'Trang đăng nhập'})}"></head>
+
+
+
+<body class="hold-transition login-page">
+<div class="login-box">
+    <div class="login-logo">
+        <a><b>AML</b>login</a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body login-card-body">
+            <form th:action="@{/login}" method="post">
+                <div class="input-group mb-3">
+                    <input name="username" type="text" class="form-control" placeholder="Username">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input name="password" type="password" class="form-control" placeholder="Password">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+                </div>
+
+            </form>
+        </div>
+        <!-- /.login-card-body -->
+    </div>
+</div>
+<!-- /.login-box -->
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+</body>
+</html>

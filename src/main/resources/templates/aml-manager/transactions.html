@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title=${'Danh sách giao dịch'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+
+    <div class="content-wrapper">
+
+<!--        <div class="content-header">-->
+<!--            <div class="container-fluid">-->
+<!--                <div class="row mb-2">-->
+<!--                    <div class="col-sm-6">-->
+<!--                        <h1 class="m-0">Danh sách giao dịch</h1>-->
+<!--                    </div>-->
+<!--                    <div class="col-sm-6">-->
+<!--                        <ol class="breadcrumb float-sm-right">-->
+<!--                            <li class="breadcrumb-item"><a href="/">Home</a></li>-->
+<!--                            <li class="breadcrumb-item active">Danh sách giao dịch</li>-->
+<!--                        </ol>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách giao dịch</h3>
+                    </div>
+
+                    <!--Danh sách giao dịch          -->
+                    <div class="card-body">
+
+                        <!-- filter block    -->
+                        <div class="row">
+
+                            <!-- filter by status    -->
+                            <div class="form-group col-3">
+                                <select onchange="changeStatusSelect()" id="statusSelect"
+                                        class="form-control form-control-sm select2bs4" style="width: 100%;">
+                                    <option selected="selected" value="finish">Hoàn thành</option>
+                                    <option value="risk">Cảnh báo đáng ngờ</option>
+                                    <option value="pass">Được phép giao dịch</option>
+                                    <option value="report">Yêu cầu báo cáo</option>
+                                    <option value="archived">Các giao dịch đã báo cáo</option>
+                                </select>
+                            </div>
+                            <!-- end filter by status    -->
+
+                            <!-- form filter by createdDate    -->
+                            <div class="form-group col-3 d-flex">
+                                <!--                            <button id="btnDateBefore" class="btn btn-secondary btn-sm mx-1"><i-->
+                                <!--                                    class="fas fa-arrow-left"></i></button>-->
+                                <div id="createdDateFilter" class="input-group date mx-1" data-target-input="nearest">
+                                    <input data-target="#createdDateFilter" type="text"
+                                           class="form-control form-control-sm datetimepicker-input"/>
+                                    <div data-target="#createdDateFilter" class="input-group-append"
+                                         data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                                <!--                            <button id="btnDateAfter" class="btn btn-secondary btn-sm mx-1"><i-->
+                                <!--                                    class="fas fa-arrow-right"></i></button>-->
+                            </div>
+                            <!-- end form filter by createdDate    -->
+
+
+                        </div>
+                        <!-- end filter block    -->
+
+
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Tên khách hàng</th>
+                                <th>Số tiền (VND)</th>
+                                <th>Ngày giao dịch</th>
+                                <th>Chi nhánh</th>
+                                <th></th>
+                                <th th:if="${param.status} == risk"></th>
+                                <th th:if="${param.status} == risk"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="transaction : ${transactions}">
+                                <td th:text="${transaction.id}"></td>
+                                <td th:text="${transaction.customer.name}"></td>
+                                <td th:text="${transaction.amount}"></td>
+                                <td th:text="${transaction.createdDateTmp}"></td>
+                                <td th:text="${transaction.branch.name}"></td>
+                                <td>
+                                    <a th:href="@{/aml-manager/transactions/transaction-detail/{transactionId}(transactionId=${transaction.id})}" class="btn btn-primary btn-sm mx-1">Xem chi tiết</a>
+                                </td>
+                                <td th:if="${transaction.status} == risk">
+                                    <a th:onclick="|updateTransactionStatus(${transaction.id}, 'report')|" class="btn btn-warning btn-sm">Yêu cầu lập báo cáo</a>
+                                </td>
+                                <td th:if="${transaction.status} == risk">
+                                    <a th:onclick="|updateTransactionStatus(${transaction.id}, 'pass')|" class="btn btn-success btn-sm">Tiếp tục giao dịch</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <ul th:if="${totalPages != 0}" class="pagination mt-2">
+                            <li th:classappend="${currentPage == 0} ? 'disabled' : ''" class="page-item">
+                                <a class="page-link btn"
+                                   th:onclick="|changePage(${currentPage-1})|" >Previous</a>
+                            </li>
+                            <li th:each="pageNum : ${#numbers.sequence(0, totalPages-1)}" class="page-item" th:classappend="${currentPage == pageNum} ? 'active' : '' ">
+                                <a class="page-link btn"
+                                   th:onclick="|changePage(${pageNum})|"
+                                   th:text="${pageNum + 1}" ></a>
+                            </li>
+                            <li th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : '' " class="page-item">
+                                <a  class="page-link btn" th:onclick="|changePage(${currentPage+1})|">Next</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--end Danh sách giao dịch          -->
+
+
+                </div>
+
+
+            </div>
+        </section>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+
+<script th:inline="javascript">
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#createdDateFilter').datetimepicker({
+            format: 'DD/MM/yyyy'
+        });
+
+        // Lấy tham số "created-date" từ URL
+        let urlParams = new URLSearchParams(window.location.search);
+        let selectedDate = urlParams.get("created-date");
+
+        // lấy tham số status từ url
+        let selectedStatus = urlParams.get("status");
+
+        // Nếu URL có tham số "created-date", đặt giá trị vào input
+        if (selectedDate) {
+            let formattedDate = moment(selectedDate, "YYYY-MM-DD");
+            $("#createdDateFilter").datetimepicker("date", formattedDate);
+        }
+
+        if(selectedStatus){
+            document.getElementById("statusSelect").value = selectedStatus;
+        }
+    });
+
+   $("#createdDateFilter").on("hide.datetimepicker", function(e) {
+        if (e.date) {
+            let urlParams = new URLSearchParams(window.location.search);
+            let oldDate = urlParams.get("created-date");
+            let selectedDate = e.date.format("YYYY-MM-DD"); // Lấy ngày đã chọn
+
+            if(oldDate && oldDate !== selectedDate){
+                let currentUrl = new URL(window.location.href); // Lấy URL hiện tại
+                currentUrl.searchParams.set("created-date", selectedDate); // Thêm hoặc cập nhật tham số
+
+                window.location.href = currentUrl.href;
+            }else if(!oldDate){
+                let currentUrl = new URL(window.location.href); // Lấy URL hiện tại
+                currentUrl.searchParams.set("created-date", selectedDate); // Thêm hoặc cập nhật tham số
+
+                window.location.href = currentUrl.href;
+            }
+
+
+        }
+    });
+
+
+    function changeStatusSelect(){
+        let statusSelect = document.getElementById("statusSelect");
+        let newURL = new URL(window.location.href);
+        newURL.searchParams.set("status", statusSelect.value);
+        window.location.href = newURL.href;
+
+    }
+
+    function updateTransactionStatus(transactionId, status) {
+
+        const newURL = new URL(window.location.href);
+
+        fetch(`http://localhost:8080/api/transaction/update/${transactionId}?status=${status}`, {
+            method: 'PUT'
+        }).then(response => {
+            console.log(response.json());
+            window.location.href = newURL;
+        });
+
+    }
+
+    function changePage (pageNum){
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set("page", pageNum);
+
+        window.location.href = currentUrl.href;
+    };
+</script>
+
+</body>
+</html>

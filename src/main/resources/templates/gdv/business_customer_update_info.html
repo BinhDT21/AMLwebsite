@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title = ${'Cập nhật lại thông tin khách hàng'})}">
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser=${currentUser})}"></aside>
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Cập nhật thông tin khách hàng</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active"><a th:href="@{/gdv/customers}">Danh sách khách hàng</a>
+                            </li>
+                            <li class="breadcrumb-item active"><a
+                                    th:href="@{/gdv/customers/result/{id}(id = ${request.customer.id})}">Kết
+                                quả nhận dạng</a>
+                            </li>
+                            <li class="breadcrumb-item active"><a th:href="@{#}">Cập nhật thông tin</a></li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <section class="content">
+
+            <div class="container-fluid">
+                <form method="post" th:action="@{/gdv/business-customer/update}" th:object="${request}">
+
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Nhập thông tin bổ sung cho doanh nghiệp</h3>
+                        </div>
+
+
+                        <div class="card-body">
+                            <input type="hidden" th:field="*{customer.id}">
+
+                            <b>A. Bổ sung thông tin người đại diện cho tổ chức:</b>
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="customerName">1. Họ và tên:</label>
+                                    <input type="text" class="form-control form-control-sm" id="customerName"
+                                           placeholder="Họ và tên" th:field="*{customer.name}">
+                                    <div th:if="${#fields.hasErrors('customer.name')}"
+                                         th:errors="*{customer.name}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <label for="customerDob">2. Ngày sinh:</label>
+                                    <div id="customerDob" class="input-group date"  data-target-input="nearest">
+                                        <input  type="text" class="form-control form-control-sm datetimepicker-input"
+                                               data-target="#customerDob"
+                                               th:field="*{customer.dob}"/>
+                                        <div class="input-group-append" data-target="#customerDob"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${#fields.hasErrors('customer.dob')}"
+                                         th:errors="*{customer.dob}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <label for="customerCountry">3. Quốc tịch:</label>
+                                    <input type="text" id="customerCountry" class="form-control form-control-sm"
+                                           placeholder="Quốc tịch:" th:field="*{customer.country}">
+                                    <div th:if="${#fields.hasErrors('customer.country')}"
+                                         th:errors="*{customer.country}" class="text-danger"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="customerNationalId">4. Số CCCD:</label>
+                                    <input type="text" id="customerNationalId" class="form-control form-control-sm"
+                                           placeholder="Số cccd:" th:field="*{customer.nationalId}">
+                                    <div th:if="${#fields.hasErrors('customer.nationalId')}"
+                                         th:errors="*{customer.nationalId}" class="text-danger"></div>
+                                    <div th:if="${duplicateNationalId != null}" th:text="${duplicateNationalId}"
+                                         class="text-danger"></div>
+                                </div>
+                                <div class="form-group col">
+                                    <label for="customerPassport">5. Số hộ chiếu:</label>
+                                    <input type="text" id="customerPassport" class="form-control form-control-sm"
+                                           placeholder="Số hộ chiếu:" th:field="*{customer.passport}">
+                                    <div th:if="${#fields.hasErrors('customer.passport')}"
+                                         th:errors="*{customer.passport}" class="text-danger"></div>
+                                    <div th:if="${duplicatePassport != null}" th:text="${duplicatePassport}"
+                                         class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <label for="customerOccupation">6. Công việc hiện tại:</label>
+                                    <input type="text" id="customerOccupation" class="form-control form-control-sm"
+                                           placeholder="Nghề nghiệp hiện tại:"
+                                           th:field="*{pcrt04Detail.customerOccupation}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.customerOccupation')}"
+                                         th:errors="*{pcrt04Detail.customerOccupation}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <!--  Địa chỉ khách hàng                          -->
+                            <div class="m-2">
+                                <b>7. Địa chỉ thường trú:</b>
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <input type="text" id="customerPermanentAddressDistrict"
+                                               class="form-control form-control-sm"
+                                               placeholder="Quận/Huyện"
+                                               th:field="*{pcrt04Detail.customerPermanentAddress.district}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerPermanentAddress.district')}"
+                                             th:errors="*{pcrt04Detail.customerPermanentAddress.district}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <input type="text" id="customerPermanentAddressProvince"
+                                               class="form-control form-control-sm"
+                                               placeholder="Tỉnh/Thành phố"
+                                               th:field="*{pcrt04Detail.customerPermanentAddress.province}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerPermanentAddress.province')}"
+                                             th:errors="*{pcrt04Detail.customerPermanentAddress.province}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <input type="text" id="customerPermanentAddressCountry"
+                                               class="form-control form-control-sm"
+                                               placeholder="Quốc gia"
+                                               th:field="*{pcrt04Detail.customerPermanentAddress.country}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerPermanentAddress.country')}"
+                                             th:errors="*{pcrt04Detail.customerPermanentAddress.country}" class="text-danger"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--  Địa chỉ hiện tại                          -->
+                            <div class="m-2">
+                                <b>8. Địa chỉ hiện tại:</b>
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <input type="text" id="customerCurrentAddressDistrict"
+                                               class="form-control form-control-sm"
+                                               placeholder="Quận/Huyện"
+                                               th:field="*{pcrt04Detail.customerCurrentAddress.district}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerCurrentAddress.district')}"
+                                             th:errors="*{pcrt04Detail.customerCurrentAddress.district}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <input type="text" id="customerCurrentAddressProvince"
+                                               class="form-control form-control-sm"
+                                               placeholder="Tỉnh/Thành phố"
+                                               th:field="*{pcrt04Detail.customerCurrentAddress.province}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerCurrentAddress.province')}"
+                                             th:errors="*{pcrt04Detail.customerCurrentAddress.province}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <input type="text" id="customerCurrentAddressCountry"
+                                               class="form-control form-control-sm"
+                                               placeholder="Quốc gia"
+                                               th:field="*{pcrt04Detail.customerCurrentAddress.country}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerCurrentAddress.country')}"
+                                             th:errors="*{pcrt04Detail.customerCurrentAddress.country}" class="text-danger"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--  Số điện thoại                          -->
+                            <div class="m-2">
+                                <b>9. Số điện thoại liên lạc:</b>
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <input type="text" id="customerOfficePhone"
+                                               class="form-control form-control-sm"
+                                               placeholder="Số điện thoại cố định"
+                                               th:field="*{pcrt04Detail.customerOfficePhone}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerOfficePhone')}"
+                                             th:errors="*{pcrt04Detail.customerOfficePhone}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <input type="text" id="customerMobilePhone"
+                                               class="form-control form-control-sm"
+                                               placeholder="Số điện thoại di động"
+                                               th:field="*{pcrt04Detail.customerMobilePhone}">
+                                        <div th:if="${#fields.hasErrors('pcrt04Detail.customerMobilePhone')}"
+                                             th:errors="*{pcrt04Detail.customerMobilePhone}" class="text-danger"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <b>B. Bổ sung thông tin cho tổ chức:</b>
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="businessName">1. Tên đầy đủ của tổ chức:</label>
+                                    <input type="text" class="form-control" id="businessName"
+                                           placeholder="Tên đầy đủ của tổ chức" th:field="*{pcrt04Detail.businessName}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.businessName')}"
+                                         th:errors="*{pcrt04Detail.businessName}" class="text-danger"></div>
+                                </div>
+                                <div class="form-group col">
+                                    <label for="businessForeignName">2. Tên tiếng nước ngoài:</label>
+                                    <input type="text" class="form-control" id="businessForeignName"
+                                           placeholder="Tên tiếng nước ngoài" th:field="*{pcrt04Detail.foreignName}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.foreignName')}"
+                                         th:errors="*{pcrt04Detail.foreignName}" class="text-danger"></div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="businessShortName">3. Tên viết tắt:</label>
+                                    <input type="text" class="form-control" id="businessShortName"
+                                           placeholder="Tên viết tắt" th:field="*{pcrt04Detail.shortName}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.shortName')}"
+                                         th:errors="*{pcrt04Detail.shortName}" class="text-danger"></div>
+                                </div>
+                                <div class="form-group col">
+                                    <label for="parentOrganization">4. Tên đơn đơn vị chủ quản:</label>
+                                    <input type="text" class="form-control" id="parentOrganization"
+                                           placeholder="Tên viết tắt" th:field="*{pcrt04Detail.parentOrganizationName}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.parentOrganizationName')}"
+                                         th:errors="*{pcrt04Detail.parentOrganizationName}" class="text-danger"></div>
+                                </div>
+                            </div>
+                            <div class="m-2 row">
+                                <b>5. Địa chỉ tổ chức/ công ty:</b>
+                                <div class="form-group col">
+                                    <input type="text" id="businessAddressDistrict"
+                                           class="form-control form-control-sm"
+                                           placeholder="Quận/Huyện"
+                                           th:field="*{pcrt04Detail.address.district}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.address.district')}"
+                                         th:errors="*{pcrt04Detail.address.district}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <input type="text" id="businessAddressProvince"
+                                           class="form-control form-control-sm"
+                                           placeholder="Tỉnh/Thành phố"
+                                           th:field="*{pcrt04Detail.address.province}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.address.province')}"
+                                         th:errors="*{pcrt04Detail.address.province}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <input type="text" id="businessAddressCountry"
+                                           class="form-control form-control-sm"
+                                           placeholder="Quốc gia"
+                                           th:field="*{pcrt04Detail.address.country}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.address.country')}"
+                                         th:errors="*{pcrt04Detail.address.country}" class="text-danger"></div>
+                                </div>
+                            </div>
+                            <!--      Giấy phép thành lập                      -->
+                            <div class="row m-2">
+                                <b>6. Giấy phép thành lập:</b>
+                                <div class="form-group col">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Số giấy phép"
+                                           th:field="*{pcrt04Detail.establishmentLicense.number}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.establishmentLicense.number')}"
+                                         th:errors="*{pcrt04Detail.establishmentLicense.number}" class="text-danger"></div>
+                                </div>
+                                <div class="form-group col">
+                                    <div class="input-group date" id="establishmentLicenseIssuedDate"
+                                         data-target-input="nearest">
+                                        <input placeholder="Ngày cấp" type="text" class="form-control form-control-sm datetimepicker-input"
+                                               data-target="#establishmentLicenseIssuedDate"
+                                               th:field="*{pcrt04Detail.establishmentLicense.issuedDateTmp}"/>
+                                        <div class="input-group-append" data-target="#establishmentLicenseIssuedDate"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.establishmentLicense.issuedDateTmp')}"
+                                         th:errors="*{pcrt04Detail.establishmentLicense.issuedDateTmp}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Nơi cấp"
+                                           th:field="*{pcrt04Detail.establishmentLicense.issuedPlace}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.establishmentLicense.issuedPlace')}"
+                                         th:errors="*{pcrt04Detail.establishmentLicense.issuedPlace}" class="text-danger"></div>
+                                </div>
+
+                            </div>
+                            <!--      Giấy đăng kí kinh doanh                      -->
+                            <div class="row m-2">
+                                <b>7. Giấy đăng kí kinh doanh:</b>
+                                <div class="form-group col">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Số giấy phép"
+                                           th:field="*{pcrt04Detail.businessRegistrationLicense.number}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.businessRegistrationLicense.number')}"
+                                         th:errors="*{pcrt04Detail.businessRegistrationLicense.number}" class="text-danger"></div>
+                                </div>
+                                <div class="form-group col">
+                                    <div class="input-group date" id="businessRegistrationLicenseIssuedDate"
+                                         data-target-input="nearest">
+                                        <input placeholder="Ngày cấp" type="text" class="form-control form-control-sm datetimepicker-input"
+                                               data-target="#businessRegistrationLicenseIssuedDate"
+                                               th:field="*{pcrt04Detail.businessRegistrationLicense.issuedDateTmp}"/>
+                                        <div class="input-group-append"
+                                             data-target="#businessRegistrationLicenseIssuedDate"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.businessRegistrationLicense.issuedDateTmp')}"
+                                         th:errors="*{pcrt04Detail.businessRegistrationLicense.issuedDateTmp}" class="text-danger"></div>
+                                </div>
+                                <div class="form-group col">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Nơi cấp"
+                                           th:field="*{pcrt04Detail.businessRegistrationLicense.issuedPlace}">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.businessRegistrationLicense.issuedPlace')}"
+                                         th:errors="*{pcrt04Detail.businessRegistrationLicense.issuedPlace}" class="text-danger"></div>
+                                </div>
+
+                            </div>
+
+                            <!--      Mã số thuế                      -->
+                            <!--      Ngành nghề kinh doanh      -->
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="businessTaxCode">8. Mã số thuế:</label>
+                                    <input class="form-control form-control-sm" id="businessTaxCode"
+                                           th:field="*{pcrt04Detail.taxCode}" type="text" placeholder="Mã số thuế">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.taxCode')}"
+                                         th:errors="*{pcrt04Detail.taxCode}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <label for="businessOccupation">9. Ngành nghề kinh doanh:</label>
+                                    <input class="form-control form-control-sm" id="businessOccupation"
+                                           th:field="*{pcrt04Detail.businessOccupation}" type="text"
+                                           placeholder="Ngành nghề kinh doanh">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.businessOccupation')}"
+                                         th:errors="*{pcrt04Detail.businessOccupation}" class="text-danger"></div>
+                                </div>
+                            </div>
+                            <!--      Số điện thoại, số fax                      -->
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="businessPhoneNumber">10. Số điện thoại:</label>
+                                    <input class="form-control form-control-sm" id="businessPhoneNumber"
+                                           th:field="*{pcrt04Detail.phoneNumber}" type="text" placeholder="Số điện thoại">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.phoneNumber')}"
+                                         th:errors="*{pcrt04Detail.phoneNumber}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group col">
+                                    <label for="businessFaxNumber">11. Số fax:</label>
+                                    <input class="form-control form-control-sm" id="businessFaxNumber"
+                                           th:field="*{pcrt04Detail.faxNumber}" type="text"
+                                           placeholder="Số fax">
+                                    <div th:if="${#fields.hasErrors('pcrt04Detail.faxNumber')}"
+                                         th:errors="*{pcrt04Detail.faxNumber}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="card ">
+                        <div class="card-body">
+
+
+                            <div class="form-group row">
+                                <label for="tongDoanhThu" class="col-sm-5 col-form-label">12. Tổng doanh thu trong 2 năm gần
+                                    nhất trước thời điểm dánh giá</label>
+                                <div class="col-sm-3">
+                                    <input id="tongDoanhThu" type="text" class="form-control "
+                                           th:field="*{tong_doanh_thu}" placeholder="Vui lòng điền chính xác tổng doanh thu">
+                                    <div th:if="${#fields.hasErrors('tong_doanh_thu')}"
+                                         th:errors="*{tong_doanh_thu}" class="text-danger"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="namThuNhat" class="col-sm-2 col-form-label">- Doanh thu năm :</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" placeholder="2025"
+                                           th:field="*{nam_thu_nhat}">
+                                    <div th:if="${#fields.hasErrors('nam_thu_nhat')}"
+                                         th:errors="*{nam_thu_nhat}" class="text-danger"></div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input id="namThuNhat" placeholder="0" type="text" class="form-control"
+                                           th:field="*{doanh_thu_nam_nhat}">
+                                    <div th:if="${#fields.hasErrors('doanh_thu_nam_nhat')}"
+                                         th:errors="*{doanh_thu_nam_nhat}" class="text-danger"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="namThuHai" class="col-sm-2 col-form-label">- Doanh thu năm :</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" placeholder="2025"
+                                           th:field="*{nam_thu_hai}">
+                                    <div th:if="${#fields.hasErrors('nam_thu_hai')}"
+                                         th:errors="*{nam_thu_hai}" class="text-danger"></div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input id="namThuHai" placeholder="0" type="text" class="form-control"
+                                           th:field="*{doanh_thu_nam_hai}">
+                                    <div th:if="${#fields.hasErrors('doanh_thu_nam_hai')}"
+                                         th:errors="*{doanh_thu_nam_hai}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>13. Thông tin liên quan đến nguồn tiền hoặc nguồn tài sản trong giao dịch của khách
+                                    hàng </label>
+                                <input type="text" class="form-control"
+                                       placeholder="........." th:field="*{thong_tin_lien_quan_nguon_tien}">
+                            </div>
+
+                            <p><b>14. Hội đồng quản trị hoặc Hội đồng thành viên</b></p>
+                            <table class="table table-bordered table-sm mb-2">
+
+                                <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Chức vụ</th>
+                                    <th>Địa chỉ thường trú</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+
+                                <tbody id="bangHoiDongQuanTri">
+                                <tr th:each="quanTriVien, stat : *{danh_sach_hdqt}">
+                                    <td><input type="text" class="form-control"
+                                               th:field="*{danh_sach_hdqt[__${stat.index}__].ten}" required></td>
+                                    <td><input type="text" class="form-control"
+                                               th:field="*{danh_sach_hdqt[__${stat.index}__].chucVu}" required></td>
+                                    <td><input type="text" class="form-control"
+                                               th:field="*{danh_sach_hdqt[__${stat.index}__].diaChi}" required></td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger">Xóa</button>
+                                    </td>
+                                </tr>
+
+
+                                </tbody>
+
+                                <tfoot>
+                                <tr>
+                                    <td colspan="4">
+                                        <button id="themHoiDongQuanTri" type="button" class="btn btn-primary">Thêm
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+                            <p><b>15. Ban điều hành</b></p>
+                            <table class="table table-bordered table-sm mb-2">
+
+                                <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Chức vụ</th>
+                                    <th>Địa chỉ thường trú</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+
+                                <tbody id="bangBanDieuHanh">
+                                <tr th:each="nhanVien, stat : *{danh_sach_bdh}">
+                                    <td><input type="text" class="form-control"
+                                               th:field="*{danh_sach_bdh[__${stat.index}__].ten}" required></td>
+                                    <td><input type="text" class="form-control"
+                                               th:field="*{danh_sach_bdh[__${stat.index}__].chucVu}" required></td>
+                                    <td><input type="text" class="form-control"
+                                               th:field="*{danh_sach_bdh[__${stat.index}__].diaChi}" required></td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger">Xóa</button>
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="4">
+                                        <button id="themBanDieuHanh" type="button" class="btn btn-primary">Thêm
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+                            <p><b>16. Kế toán trưởng</b></p>
+
+                            <div class="row">
+                                <div class="form-group col-6">
+                                    <label for="tenKeToanTruong">Họ tên:</label>
+                                    <input class="form-control" id="tenKeToanTruong" type="text"
+                                           th:field="*{ke_toan_truong.ten}">
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="diaChiKeToanTruong">Địa chỉ:</label>
+                                    <input class="form-control" id="diaChiKeToanTruong" type="text"
+                                           th:field="*{ke_toan_truong.diaChi}">
+                                </div>
+                            </div>
+
+
+                            <div class="form-group mt-2">
+                                <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<script th:inline="javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#customerDob').datetimepicker({format: 'L'});
+
+        $('#establishmentLicenseIssuedDate').datetimepicker({format: 'L'});
+
+        $('#businessRegistrationLicenseIssuedDate').datetimepicker({format: 'L'});
+
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const bangHoiDongQuanTri = document.getElementById("bangHoiDongQuanTri");
+        const nutThemHoiDongQuanTri = document.getElementById("themHoiDongQuanTri");
+
+        nutThemHoiDongQuanTri.addEventListener("click", function(){
+            const index = bangHoiDongQuanTri.getElementsByTagName("tr").length;
+
+            const newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                <td>
+                    <input placeholder="Nguyễn Văn A" type="text" class="form-control"
+                           name="danh_sach_hdqt[${index}].ten" required>
+                </td>
+                <td>
+                    <input placeholder="quản trị viên" type="text" class="form-control"
+                           name="danh_sach_hdqt[${index}].chucVu" required>
+                </td>
+                <td>
+                    <input placeholder="Hồ Chí Minh..." type="text" class="form-control"
+                           name="danh_sach_hdqt[${index}].diaChi" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger xoaHoiDongQuanTri">Xóa</button>
+                </td>
+            `;
+
+            bangHoiDongQuanTri.appendChild(newRow);
+
+        });
+
+        bangHoiDongQuanTri.addEventListener("click", function (event){
+            if (event.target.classList.contains("xoaHoiDongQuanTri")) {
+                    event.target.closest("tr").remove();
+                }
+        });
+
+    });
+
+    document.addEventListener("DOMContentLoaded", function(){
+        const bangBanDieuHanh = document.getElementById("bangBanDieuHanh");
+        const nutThemBanDieuHanh = document.getElementById("themBanDieuHanh");
+
+        nutThemBanDieuHanh.addEventListener("click", function (){
+            const index = bangBanDieuHanh.getElementsByTagName("tr").length;
+            const newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                <td>
+                    <input placeholder="Nguyễn Văn A" type="text" class="form-control"
+                           name="danh_sach_bdh[${index}].ten" required>
+                </td>
+                <td>
+                    <input placeholder="điều hành viên" type="text" class="form-control"
+                           name="danh_sach_bdh[${index}].chucVu" required>
+                </td>
+                <td>
+                    <input placeholder="Hồ Chí Minh..." type="text" class="form-control"
+                           name="danh_sach_bdh[${index}].diaChi" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger xoaBanDieuHanh">Xóa</button>
+                </td>
+            `;
+
+            bangBanDieuHanh.appendChild(newRow);
+        });
+
+        bangBanDieuHanh.addEventListener("click", function (event){
+            if (event.target.classList.contains("xoaBanDieuHanh")) {
+                    event.target.closest("tr").remove();
+                }
+        });
+
+    });
+
+</script>
+</body>
+</html>

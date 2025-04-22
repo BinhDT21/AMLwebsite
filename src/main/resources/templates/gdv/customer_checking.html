@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title=${'Kiểm tra khách hàng'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <!-- Preloader -->
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Kiểm tra thông tin khách hàng</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">Kiểm tra khách hàng</li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Nhập thông tin khách hàng</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <form th:action="@{/gdv/customer-checking/result}" method="post" th:object="${customer}">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="name">Họ và tên</label>
+                                <input type="text" class="form-control form-control-sm" id="name"
+                                       placeholder="Họ và tên" th:field="*{name}">
+                                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Ngày sinh:</label>
+                                <div class="input-group date" id="dob" data-target-input="nearest">
+                                    <input type="text" class="form-control form-control-sm datetimepicker-input"
+                                           data-target="#dob"
+                                           th:field="*{dob}"/>
+                                    <div class="input-group-append" data-target="#dob" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                                <div th:if="${#fields.hasErrors('dob')}" th:errors="*{dob}" class="text-danger"></div>
+
+
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Địa chỉ</label>
+                                <input type="text" class="form-control form-control-sm" id="address"
+                                       placeholder="Địa chỉ" th:field="*{address}">
+                                <div th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">Thành phố</label>
+                                <input type="text" class="form-control form-control-sm" id="city"
+                                       placeholder="Thành phố" th:field="*{city}">
+                                <div th:if="${#fields.hasErrors('city')}" th:errors="*{city}" class="text-danger"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="country">Quốc tịch</label>
+                                <input type="text" class="form-control form-control-sm" id="country"
+                                       placeholder="Quốc tịch" th:field="*{country}">
+                                <div th:if="${#fields.hasErrors('country')}" th:errors="*{country}" class="text-danger"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="nationId">CCCD/MST</label>
+                                <input type="text" class="form-control form-control-sm" id="nationId"
+                                       placeholder="CCCD cá nhân/MST Công ty" th:field="*{nationalId}">
+                                <div th:if="${#fields.hasErrors('nationalId')}" th:errors="*{nationalId}" class="text-danger"></div>
+                                <div th:if="${duplicateNationalId != null}" th:text="${duplicateNationalId}" class="text-danger"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="passport">Hộ chiếu</label>
+                                <input type="text" class="form-control form-control-sm" id="passport"
+                                       placeholder="Hộ chiếu" th:field="*{passport}">
+                                <div th:if="${#fields.hasErrors('passport')}" th:errors="*{passport}" class="text-danger"></div>
+                                <div th:if="${duplicatePassport != null}" th:text="${duplicatePassport}" class="text-danger"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Loại khách hàng</label>
+                                <select class="form-control form-control-sm select2bs4" style="width: 100%;"
+                                        th:field="*{type}">
+                                    <option selected="selected" th:selected="*{type == 'cá nhân'}" value="cá nhân">Cá
+                                        nhân
+                                    </option>
+                                    <option th:selected="*{type == 'doanh nghiệp'}" value="doanh nghiệp">Doanh nghiệp
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Kiểm tra khách hàng</button>
+                            </div>
+
+                        </div>
+
+                    </form>
+                </div>
+
+
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+<!-- ./wrapper -->
+
+<!--Import javaScript-->
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+    $('#dob').datetimepicker({
+        format: 'DD/MM/YYYY',
+        locale: 'vi'
+    });
+});
+</script>
+
+</body>
+</html>

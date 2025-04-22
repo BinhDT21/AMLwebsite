@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(title=${'Lập phiếu PCRT-06'})}">
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser=${currentUser})}"></aside>
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Lập phiếu PCRT-06</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">Lập phiếu PCRT-06</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card card-primary p-2">
+                            <div class="card-header">
+                                <h3 class="card-title">Danh sách khách hàng</h3>
+                            </div>
+
+                            <div th:if="${reviewList.size != 0}">
+                                <input disabled th:value="${reviewList[0].createdDateTmp}" class="form-control"
+                                       type="text">
+                            </div>
+
+
+                            <table id="reviewTable" class="table table-sm table-bordered mt-2 mb-2">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Quốc tịch</th>
+                                    <th>CCCD</th>
+                                    <th>Hộ chiếu</th>
+                                    <th>Đánh giá của nhân viên AML</th>
+                                    <th>Thông tin bổ sung</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="review : ${reviewList}">
+                                    <td>
+                                        <a th:onclick="|getCustomerDetail(${review.customer.id})|"
+                                           data-toggle="modal"
+                                           data-target="#modelCustomerInfo"
+                                           th:href="@{#}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></a>
+                                    </td>
+                                    <td th:text="${review.customer.name}"></td>
+                                    <td th:text="${review.customer.dob}"></td>
+                                    <td th:text="${review.customer.country}"></td>
+                                    <td th:text="${review.customer.nationalId}"></td>
+                                    <td th:text="${review.customer.passport}"></td>
+                                    <td class="text-danger" th:if="${review.staffEvaluate == 'pass'}">
+                                        Rủi ro cao
+                                    </td>
+                                    <td class="text-success" th:if="${review.staffEvaluate == 'fail'}">
+                                        Rủi ro thấp
+                                    </td>
+
+                                    <!--td xem đã có thông tin bổ sung chưa -->
+                                    <td class="text-success"
+                                        th:if="${review.customer.type == 'cá nhân' and review.customer.pcrt_03_forms.size() > 0}">
+                                        Đã có
+                                    </td>
+                                    <td class="text-danger"
+                                        th:if="${review.customer.type == 'cá nhân' and review.customer.pcrt_03_forms.size() <= 0}">
+                                        Chưa có
+                                    </td>
+                                    <td class="text-success"
+                                        th:if="${review.customer.type == 'doanh nghiệp' and review.customer.pcrt_04_forms.size() > 0}">
+                                        Đã có
+                                    </td>
+                                    <td class="text-danger"
+                                        th:if="${review.customer.type == 'doanh nghiệp' and review.customer.pcrt_04_forms.size() <= 0}">
+                                        Chưa có
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div style="display:none" id="spinner2" class="text-center">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
+                            <button id="btnCreate" onclick="createPCRT_06()" class="btn btn-primary btn-sm">Tạo PCRT-06
+                            </button>
+
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!--modal-->
+    <div data-backdrop="static" class="modal fade" id="modelCustomerInfo">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Thông tin chi tiết khách hàng</h5>
+                    <button onclick="clearTable()" type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="card card-primary">
+
+                        <div class="card-body">
+                            <div id="spinner" class="text-center">
+                                <div class="spinner-border text-primary"></div>
+                            </div>
+                            <b class="ml-3 text-primary">Thông tin khách hàng</b>
+                            <table class="table table-bordered" id="customerDetailTable">
+                                <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Họ và Tên</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Thành phố</th>
+                                    <th>Quốc tịch</th>
+                                    <th>CCCD/MST</th>
+                                    <th>Hộ chiếu</th>
+                                    <th>Loại khách hàng</th>
+                                    <th>Độ rủi ro</th>
+                                </tr>
+                                </thead>
+
+                                <tbody></tbody>
+                            </table>
+
+
+                            <div class="row mt-2 mb-2 ">
+                                <div class="col-6">
+                                    <b class="ml-3 text-primary">Danh sách kết quả khảo sát</b>
+                                    <div class="row">
+                                        <table class="table table-sm table-striped" id="kqksTable">
+                                            <tbody></tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <b class="ml-3 text-primary">Danh sách phiếu bổ sung thông tin</b>
+                                    <div class="row">
+                                        <table class="table table-sm table-striped" id="additionalInfoFormTable">
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-2 mb-2">
+                                <b class="ml-3 text-primary">Danh sách thông tin giao dịch</b>
+                                <table id="tableTransaction" class="table table-sm table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Số tiền</th>
+                                        <th>Giao dịch viên</th>
+                                        <th>Chi nhánh giao dịch</th>
+                                        <th>Ngày giao dịch</th>
+
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button onclick="clearTable()" type="button" class="btn btn-danger" data-dismiss="modal">Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    async function getCustomerDetail (customerId){
+
+        const spinner = document.getElementById("spinner");
+        const customerDetailTable = document.getElementById("customerDetailTable");
+        const tableBody = customerDetailTable.querySelector("tbody")
+
+        const kqksTable = document.getElementById("kqksTable");
+        const kqksTableBody = kqksTable.querySelector("tbody");
+
+
+        const additionalInfoFormTable = document.getElementById("additionalInfoFormTable");
+        const additionalInfoFormTableBody = additionalInfoFormTable.querySelector("tbody");
+
+        spinner.style.display = "block";
+        customerDetailTable.style.display = "none";
+
+
+<!--fet api get customer detail-->
+        const response =await fetch(`http://localhost:8080/api/gdv/customer-detail/${customerId}`, {
+            method: 'GET'
+        })
+        const data = await response.json();
+
+        const newRow =  document.createElement("tr");
+
+        let riskClass = "text-danger";
+        let riskText = "cao";
+        if(data.customer.riskClassification === 'low'){
+            riskText = "thấp";
+            riskClass = "text-success";
+        }else if(data.customer.riskClassification === 'medium'){
+            riskText = "trung bình";
+            riskClass = "text-warning";
+        }
+
+        newRow.innerHTML = `
+            <td>${data.customer.id}</td>
+             <td>${data.customer.name}</td>
+             <td>${data.customer.dob}</td>
+             <td>${data.customer.address}</td>
+             <td>${data.customer.city}</td>
+             <td>${data.customer.country}</td>
+             <td>${data.customer.nationalId}</td>
+             <td>${data.customer.passport}</td>
+             <td>${data.customer.type}</td>
+             <td class="${riskClass}">${riskText}</td>`
+
+
+        tableBody.appendChild(newRow);
+
+
+        if(data.kqksList.length > 0){
+            data.kqksList.forEach(createRowPerItem)
+        }
+        function createRowPerItem (item, index){
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${index}</td>
+                <td>Lần ${index + 1}</td>
+                <td>${item.createdDateTmp}</td>
+                <td><a target="_blank" class="btn btn-sm btn-primary" href="${item.filePath}">Xem</a></td>
+            `;
+            kqksTableBody.appendChild(newRow);
+        }
+
+        if(data.additionalInfoForm.length > 0){
+            data.additionalInfoForm.forEach(createRowPerItem2)
+        }
+        function createRowPerItem2 (item, index){
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${index}</td>
+                <td>Lần ${index + 1}</td>
+                ${item.createdDateTmp}
+                <td><a target="_blank" class="btn btn-sm btn-primary" href="${item.filePath}">Xem</a></td>
+            `;
+            additionalInfoFormTableBody.appendChild(newRow);
+        }
+
+
+
+        spinner.style.display = "none";
+        customerDetailTable.style.display = "block";
+
+
+
+<!--        fetch api lay list transaction -->
+            const transactionListResponse =await fetch(`http://localhost:8080/api/aml-staff/transaction/list/${customerId}`, {
+                method: "GET"
+            })
+
+            const transactionList = await transactionListResponse.json();
+
+            const transactionTable = document.getElementById("tableTransaction");
+            const transactionTableBody = transactionTable.querySelector("tbody");
+
+            if(transactionList.length > 0){
+                transactionList.forEach(createRowPerItem3)
+            }
+            function createRowPerItem3 (item, index){
+                const newRow = document.createElement("tr");
+                newRow.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.amount} VND</td>
+                    <td>${item.user.name}</td>
+                    <td>${item.branch.name}</td>
+                    <td>${item.createdDate}</td>
+
+                `;
+                transactionTableBody.appendChild(newRow);
+            }
+
+
+    }
+
+    function clearTable () {
+        const customerDetailTable = document.getElementById("customerDetailTable");
+        const tableBody = customerDetailTable.querySelector("tbody");
+
+        const kqksTable = document.getElementById("kqksTable");
+        const kqksTableBody = kqksTable.querySelector("tbody");
+
+        const additionalInfoFormTable = document.getElementById("additionalInfoFormTable");
+        const additionalInfoFormTableBody = additionalInfoFormTable.querySelector("tbody");
+
+        const transactionTable = document.getElementById("tableTransaction");
+        const transactionTableBody = transactionTable.querySelector("tbody");
+
+        tableBody.innerHTML = "";
+        kqksTableBody.innerHTML ="";
+        additionalInfoFormTableBody.innerHTML ="";
+        transactionTableBody.innerHTML = "";
+    }
+
+
+<!--    fetch api tạo pcrt06 -->
+
+    function createPCRT_06(){
+
+        const spinner2 = document.getElementById("spinner2");
+        const btnCreatePCRT = document.getElementById("btnCreate");
+
+        spinner2.style.display = "";
+        btnCreatePCRT.style.display = "none";
+
+        fetch("http://localhost:8080/api/aml-staff/pcrt-06",{
+            method: "POST"
+        }).then(response =>{
+            window.location.href = "/aml-staff/pcrt-06"
+        });
+
+    }
+
+</script>
+
+
+</body>
+</html>

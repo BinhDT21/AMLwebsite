@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title=${'Danh sách báo cáo'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+
+    <div class="content-wrapper">
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách báo cáo</h3>
+                    </div>
+
+                    <!--Danh sách giao dịch          -->
+                    <div class="card-body">
+
+                        <!-- filter block    -->
+                        <div class="row">
+
+                            <!-- form filter by createdDate    -->
+                            <div class="form-group col-3 d-flex">
+                                <div id="createdDateFilter" class="input-group date mx-1" data-target-input="nearest">
+                                    <input data-target="#createdDateFilter" type="text"
+                                           class="form-control form-control-sm datetimepicker-input"/>
+                                    <div data-target="#createdDateFilter" class="input-group-append"
+                                         data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end form filter by createdDate    -->
+
+                        </div>
+                        <!-- end filter block    -->
+
+                        <!-- table report        -->
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Ngày lập báo cáo</th>
+                                    <th>Nhân viên báo cáo</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chi nhánh</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="report : ${reports}">
+                                    <td th:text="${report.id}"></td>
+                                    <td th:text="${report.createdDateTmp}"></td>
+                                    <td th:text="${report.user.name}"></td>
+                                    <td th:if="${report.status} == pending" class="text-warning">Chưa báo cáo</td>
+                                    <td th:if="${report.status} != pending" class="text-success">Đã báo cáo</td>
+                                    <td th:text="${report.user.branch.name}"></td>
+                                    <td>
+                                        <a class="btn btn-primary btn-sm" th:href="@{/aml-staff/reports/report-detail/{id}(id=${report.id})}">Xem chi tiết</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- end table report        -->
+
+                        <ul th:if="${totalPages != 0}" class="pagination mt-2">
+                            <li th:classappend="${currentPage == 0} ? 'disabled' : ''" class="page-item">
+                                <a class="page-link btn"
+                                   th:onclick="|changePage(${currentPage-1})|" >Previous</a>
+                            </li>
+                            <li th:each="pageNum : ${#numbers.sequence(0, totalPages-1)}" class="page-item" th:classappend="${currentPage == pageNum} ? 'active' : '' ">
+                                <a class="page-link btn"
+                                   th:onclick="|changePage(${pageNum})|"
+                                   th:text="${pageNum + 1}" ></a>
+                            </li>
+                            <li th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : '' " class="page-item">
+                                <a  class="page-link btn" th:onclick="|changePage(${currentPage+1})|">Next</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--end Danh sách giao dịch          -->
+
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+
+<script th:inline="javascript">
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#createdDateFilter').datetimepicker({
+            format: 'DD/MM/yyyy'
+        });
+
+        // Lấy tham số "created-date" từ URL
+        let urlParams = new URLSearchParams(window.location.search);
+        let selectedDate = urlParams.get("created-date");
+
+
+
+        // Nếu URL có tham số "created-date", đặt giá trị vào input
+        if (selectedDate) {
+            let formattedDate = moment(selectedDate, "YYYY-MM-DD");
+            $("#createdDateFilter").datetimepicker("date", formattedDate);
+        }
+
+    });
+
+   $("#createdDateFilter").on("hide.datetimepicker", function(e) {
+        if (e.date) {
+            let urlParams = new URLSearchParams(window.location.search);
+            let oldDate = urlParams.get("created-date");
+            let selectedDate = e.date.format("YYYY-MM-DD"); // Lấy ngày đã chọn
+
+            if(oldDate && oldDate !== selectedDate){
+                let currentUrl = new URL(window.location.href); // Lấy URL hiện tại
+                currentUrl.searchParams.set("created-date", selectedDate); // Thêm hoặc cập nhật tham số
+
+                window.location.href = currentUrl.href;
+            }else if(!oldDate){
+                let currentUrl = new URL(window.location.href); // Lấy URL hiện tại
+                currentUrl.searchParams.set("created-date", selectedDate); // Thêm hoặc cập nhật tham số
+
+                window.location.href = currentUrl.href;
+            }
+        }
+    });
+
+    function changePage (pageNum){
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set("page", pageNum);
+
+        window.location.href = currentUrl.href;
+    };
+
+
+</script>
+
+</body>
+</html>

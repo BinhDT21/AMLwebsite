@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<head th:replace="~{fragments/header :: header(title=${'Thông tin khách hàng'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+
+<div class="wrapper">
+    <!-- Preloader -->
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <!-- Main Sidebar Container -->
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser=${currentUser})}"></aside>
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Danh sách khách hàng</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">Thông tin khách hàng</li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+
+                <form class="mt-2" id="select-form" method="get">
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="status">Trạng thái:</label>
+                                <select id="status" name="status" class="form-control select2bs4 form-control-sm"
+                                        style="width: 100%;">
+                                    <option value="all">Tất cả</option>
+                                    <option value="saved">Đã lưu</option>
+                                    <option value="waiting">Đang chờ kiểm tra</option>
+                                    <option value="checked">Đã kiểm tra</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="customerType">Loại khách hàng:</label>
+                                <select id="customerType" name="type" class="form-control form-control-sm select2bs4"
+                                        style="width: 100%;">
+                                    <option value="all">Tất cả</option>
+                                    <option value="cá nhân">Cá nhân</option>
+                                    <option value="doanh nghiệp">Doanh nghiệp</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="customerRisk">Độ rủi ro:</label>
+                                <select id="customerRisk" name="riskClassification"
+                                        class="form-control form-control-sm select2bs4" style="width: 100%;">
+                                    <option value="all">Tất cả</option>
+                                    <option value="low">Thấp</option>
+                                    <option value="medium">Trung bình</option>
+                                    <option value="high">Cao</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="customerName">Họ tên khách hàng:</label>
+                                <input id="customerName" class="form-control form-control-sm" type="text" name="name"
+                                       placeholder="Họ Tên">
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="customerNI">Số căn cước:</label>
+                                <input id="customerNI" class="form-control form-control-sm" type="text"
+                                       name="nationalId"
+                                       placeholder="Số căn cước công dân">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="customerPassport">Số hộ chiếu:</label>
+                                <input id="customerPassport" class="form-control form-control-sm" type="text"
+                                       name="passport" placeholder="Hộ chiếu">
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label for="customerAddress">Địa chỉ:</label>
+                                <input id="customerAddress" class="form-control form-control-sm" type="text"
+                                       name="address" placeholder="Địa chỉ">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label for="customerCity">Thành phố:</label>
+                                <input id="customerCity" class="form-control form-control-sm" type="text" name="city"
+                                       placeholder="Thành phố">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label for="customerCountry">Quốc tịch:</label>
+                                <input id="customerCountry" class="form-control form-control-sm" type="text"
+                                       name="country" placeholder="Quốc tịch">
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="nav-icon fas fa-search"></i>Search
+                        </button>
+                    </div>
+
+                </form>
+            </div><!-- /.container-fluid -->
+        </div><!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách khách hàng</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <table class="table table-sm table-striped">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Họ và Tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Địa chỉ</th>
+                            <th>Thành phố</th>
+                            <th>Quốc tịch</th>
+                            <th>CCCD/MST</th>
+                            <th>Hộ chiếu</th>
+                            <th>Loại khách hàng</th>
+                            <th>Độ rủi ro</th>
+                            <th>Trạng thái</th>
+                            <th>Yêu cầu</th>
+                        </tr>
+                        </thead>
+
+
+                        <tr th:each="customer: ${customers}">
+                            <td>
+                                <a th:onclick="|getCustomerDetail(${customer.id})|" data-toggle="modal"
+                                   data-target="#modelCustomerInfo"
+                                   th:href="@{#}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
+                            </td>
+                            <td th:text="${customer.name}"></td>
+                            <td th:text="${customer.dob}"></td>
+                            <td th:text="${customer.address}"></td>
+                            <td th:text="${customer.city}"></td>
+                            <td th:text="${customer.country}"></td>
+                            <td th:text="${customer.nationalId}"></td>
+                            <td th:text="${customer.passport}"></td>
+                            <td th:text="${customer.type}"></td>
+
+                            <td th:if="${customer.riskClassification == 'low'}">Thấp</td>
+                            <td class="text-warning" th:if="${customer.riskClassification == 'medium'}">Trung bình</td>
+                            <td class="text-danger" th:if="${customer.riskClassification == 'high'}">Cao</td>
+
+
+                            <td class="text-secondary" th:if="${customer.status == 'saved'}">Đã lưu</td>
+                            <td class="text-warning" th:if="${customer.status == 'waiting'}">Chờ kiểm tra</td>
+                            <td class="text-success" th:if="${customer.status == 'checked'}">Đã kiểm tra</td>
+
+                            <td th:if="${customer.status == 'checked'}">
+                                <a th:href="@{/gdv/customers/result/{id}(id=${customer.id})}"
+                                >Xem</a>
+                            </td>
+                            <td th:if="${customer.status != 'checked'}"></td>
+
+                        </tr>
+                    </table>
+
+                    <ul class="pagination ml-2">
+                        <!--Button Prevous-->
+                        <li th:classappend="${currentPage == 0} ? 'disabled' : ''" class="page-item">
+                            <a class="page-link btn btn-sm" th:onclick="|changePage(${currentPage-1})|">Previous</a>
+
+                        </li>
+
+                        <!--Button page number-->
+                        <li th:each="pageNum : ${#numbers.sequence(0, totalPages-1)}" class="page-item"
+                            th:classappend="${currentPage == pageNum} ? 'active' : '' ">
+                            <a class="page-link btn"
+                               th:text="${pageNum + 1}"  th:onclick="|changePage(${pageNum})|"></a>
+                        </li>
+
+                        <!--Button Next-->
+                        <li th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : '' " class="page-item">
+                            <a class="page-link btn btn-sm"
+                                th:onclick="|changePage(${currentPage+1})|">Next</a>
+                        </li>
+                    </ul>
+                </div>
+
+
+            </div>
+        </section>
+        <!-- /.content -->
+    </div><!-- /.content-wrapper -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<!-- The Modal -->
+<div data-backdrop="static" class="modal fade" id="modelCustomerInfo">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+                <h5 class="modal-title">Thông tin chi tiết khách hàng</h5>
+                <button onclick="clearTable()" type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <div class="card card-primary">
+
+                    <div class="card-body">
+                        <div id="spinner" class="text-center">
+                            <div class="spinner-border text-primary"></div>
+                        </div>
+                        <table class="table table-bordered" id="customerDetailTable">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Họ và Tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Địa chỉ</th>
+                                <th>Thành phố</th>
+                                <th>Quốc tịch</th>
+                                <th>CCCD/MST</th>
+                                <th>Hộ chiếu</th>
+                                <th>Loại khách hàng</th>
+                                <th>Phân loại</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                            </thead>
+
+                            <tbody></tbody>
+                        </table>
+
+                        <div class="row mt-2 mb-2 ">
+                            <div class="col-6">
+                                <b class="ml-3 text-primary">Danh sách kết quả khảo sát</b>
+                                <div class="row">
+                                    <table class="table table-sm table-striped" id="kqksTable">
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <b class="ml-3 text-primary">Danh sách phiếu bổ sung thông tin</b>
+                                <div class="row">
+                                    <table class="table table-sm table-striped" id="additionalInfoFormTable">
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button onclick="clearTable()" type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+
+    async function getCustomerDetail (customerId){
+
+        const spinner = document.getElementById("spinner");
+        const customerDetailTable = document.getElementById("customerDetailTable");
+        const tableBody = customerDetailTable.querySelector("tbody")
+
+        const kqksTable = document.getElementById("kqksTable");
+        const kqksTableBody = kqksTable.querySelector("tbody");
+
+        const additionalInfoFormTable = document.getElementById("additionalInfoFormTable");
+        const additionalInfoFormTableBody = additionalInfoFormTable.querySelector("tbody");
+
+        spinner.style.display = "block";
+        customerDetailTable.style.display = "none";
+
+        const response =await fetch(`http://localhost:8080/api/gdv/customer-detail/${customerId}`, {
+            method: 'GET'
+        })
+        const data = await response.json();
+
+        const newRow =  document.createElement("tr");
+        newRow.innerHTML = `
+            <td>${data.customer.id}</td>
+             <td>${data.customer.name}</td>
+             <td>${data.customer.dob}</td>
+             <td>${data.customer.address}</td>
+             <td>${data.customer.city}</td>
+             <td>${data.customer.country}</td>
+             <td>${data.customer.nationalId}</td>
+             <td>${data.customer.passport}</td>
+             <td>${data.customer.type}</td>
+             <td>${data.customer.riskClassification}</td>
+             <td>${data.customer.status}</td>`;
+
+
+        tableBody.appendChild(newRow);
+
+
+        if(data.kqksList.length > 0){
+            data.kqksList.forEach(createRowPerItem)
+        }
+        function createRowPerItem (item, index){
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${index}</td>
+                <td>Lần ${index + 1}</td>
+                <td><a target="_blank" class="btn btn-primary btn-sm" href="${item.filePath}">Xem</a></td></td>
+            `;
+            kqksTableBody.appendChild(newRow);
+        }
+
+        if(data.additionalInfoForm.length > 0){
+            data.additionalInfoForm.forEach(createRowPerItem2)
+        }
+        function createRowPerItem2 (item, index){
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${index}</td>
+                <td>Lần ${index + 1}</td>
+                <td><a target="_blank" class="btn btn-primary btn-sm" href="${item.filePath}">Xem</a></td></td>
+            `;
+            additionalInfoFormTableBody.appendChild(newRow);
+        }
+
+
+
+        spinner.style.display = "none";
+        customerDetailTable.style.display = "block";
+    }
+
+    function clearTable () {
+        const customerDetailTable = document.getElementById("customerDetailTable");
+        const tableBody = customerDetailTable.querySelector("tbody");
+
+        const kqksTable = document.getElementById("kqksTable");
+        const kqksTableBody = kqksTable.querySelector("tbody");
+
+        const additionalInfoFormTable = document.getElementById("additionalInfoFormTable");
+        const additionalInfoFormTableBody = additionalInfoFormTable.querySelector("tbody");
+
+        tableBody.innerHTML = "";
+        kqksTableBody.innerHTML ="";
+        additionalInfoFormTableBody.innerHTML ="";
+    };
+
+    function changePage (pageNum){
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set("page", pageNum);
+
+        window.location.href = currentUrl.href;
+    };
+</script>
+</body>
+</html>

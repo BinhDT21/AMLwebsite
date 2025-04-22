@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title=${'Tạo giao dịch'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+
+    <div class="content-wrapper">
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Tạo giao dịch</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active">Tạo giao dịch</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Thông tin giao dịch</h3>
+                    </div>
+
+                    <form th:action="@{/gdv/transaction/create}" method="post" th:object="${transaction}">
+                        <div class="card-body">
+
+                            <!-- input get id model         -->
+                            <input style="display:none" type="text" th:field="*{transactionId}">
+
+                            <div class="row">
+                                <div class="form-group col">
+                                    <label for="createdDate">Ngày giao dịch:</label>
+                                    <input th:value="${createdDate}" disabled class="form-control form-control-sm"
+                                           type="text" id="createdDate">
+                                </div>
+                                <div class="form-group col">
+                                    <label for="userName">Nhân viên thực hiện:</label>
+                                    <input th:value="${currentUser.name}" class="form-control form-control-sm"
+                                           id="userName"
+                                           disabled type="text">
+                                </div>
+                                <div class="form-group col">
+                                    <label for="branch">Chi nhánh:</label>
+                                    <input th:value="${currentUser.branch.name}" class="form-control form-control-sm"
+                                           id="branch"
+                                           disabled type="text">
+                                </div>
+                            </div>
+
+                            <h5><b>Số tiền giao dịch:</b></h5>
+                            <div class="form-group">
+                                <input class="form-control form-control-sm" th:field="*{amount}" type="text"
+                                       placeholder="Nhập số tiền giao dịch">
+                            </div>
+
+                            <h5><b>Thông tin người thực hiện giao dịch:</b></h5>
+
+                            <div class="row form-group">
+                                <div class="d-flex col-4">
+                                    <input placeholder="Nhập số căn cước công dân" type="text"
+                                           class="form-control form-control-sm " id="customerNationalId"
+                                           th:field="*{nationalId}">
+                                    <button id="btnSearchCustomer" onclick="getCustomer()" type="button"
+                                            class="btn btn-sm btn-secondary mx-1">
+                                        <i class="nav-icon fas fa-search"></i>
+                                    </button>
+
+                                    <div style="display:none" id="spinner" class="text-center mx-1">
+                                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--show thông tin khách hàng                            -->
+                            <div id="customerDiv" style="display:none" class="mx-4">
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="customerName">Họ Tên khách hàng:</label>
+                                        <input id="customerName" class="form-control form-control-sm" disabled
+                                               type="text" value="Duong Thanh Binh">
+                                    </div>
+
+
+                                    <div class="form-group col">
+                                        <label for="customerDob">Ngày sinh khách hàng:</label>
+                                        <input id="customerDob" class="form-control form-control-sm" disabled
+                                               type="text"
+                                               value="10/08/2003">
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="customerPassport">Số hộ chiếu khách hàng:</label>
+                                        <input id="customerPassport" class="form-control form-control-sm" disabled
+                                               type="text" value="588941">
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <label for="customerRisk">Độ rủi ro:</label>
+                                        <input id="customerRisk" class="form-control form-control-sm" disabled
+                                               type="text"
+                                               value="Thấp">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group col">
+                                        <label for="customerAddress">Địa chỉ:</label>
+                                        <input id="customerAddress" class="form-control form-control-sm" disabled
+                                               type="text" value="14c Cách Mạng T8">
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <label for="customerCity">Thành phố:</label>
+                                        <input id="customerCity" class="form-control form-control-sm" disabled
+                                               type="text" value="Hồ Chí Minh">
+                                    </div>
+
+                                    <div class="form-group col">
+                                        <label for="customerCountry">Quốc tịch:</label>
+                                        <input id="customerCountry" class="form-control form-control-sm" disabled
+                                               type="text"
+                                               value="Việt Nam">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--nếu không tiềm thấy khách hàng      -->
+                            <div id="customerNotFoundAlert" style="display:none" class="alert alert-danger">Không tìm
+                                thấy khách hàng
+                            </div>
+
+
+                            <div class="form-group">
+                                <button id="btnCreate" style="display:none" type="submit" class="btn btn-primary">Tạo
+                                    giao dịch
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </form>
+                </div>
+
+
+            </div>
+        </section>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<script>
+    <!-- function gọi api lấy thông tin khách hàng khi click vào tìm kiếm   -->
+        async function getCustomer (){
+            const btnSearchCustomer = document.getElementById("btnSearchCustomer");
+            const spinner = document.getElementById("spinner");
+
+            spinner.style.display = "block";
+            btnSearchCustomer.style.display = "none";
+
+            let nationalId = document.getElementById("customerNationalId").value;
+            try{
+                const response = await fetch(`http://localhost:8080/api/customer/customer-detail/${nationalId}`, {
+                    method: 'GET'
+                });
+
+                const data =await response.json();
+
+                if(!data.id){
+                    console.log("Customer not found");
+                    document.getElementById("customerNotFoundAlert").style.display = "";
+                    document.getElementById("customerDiv").style.display = "none";
+
+                    document.getElementById("btnCreate").style.display = "none";
+
+                }else {
+                    console.log("Customer found");
+                    console.log(data);
+                    document.getElementById("customerNotFoundAlert").style.display = "none";
+                    document.getElementById("customerDiv").style.display = "";
+
+                    document.getElementById("customerName").value = data.name;
+                    document.getElementById("customerDob").value = data.dob;
+                    document.getElementById("customerPassport").value = data.passport;
+                    if(data.riskClassification === 'low'){
+                        document.getElementById("customerRisk").value = "Thấp";
+                    }else if(data.riskClassification === 'high'){
+                        document.getElementById("customerRisk").value = "Cao";
+                    }else {
+                        document.getElementById("customerRisk").value = "Trung bình";
+                    }
+
+                    document.getElementById("customerAddress").value = data.address;
+                    document.getElementById("customerCity").value = data.city;
+                    document.getElementById("customerCountry").value = data.country;
+
+                    document.getElementById("btnCreate").style.display = "";
+                }
+
+            }catch(err){
+                console.log("Lỗi api lấy thông tin customer " + err);
+            }finally{
+                spinner.style.display = "none";
+                btnSearchCustomer.style.display = "";
+            }
+        };
+    <!-- end function gọi api lấy thông tin khách hàng khi click vào tìm kiếm   -->
+
+</script>
+</body>
+</html>

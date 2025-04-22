@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: header(title=${'Cảnh báo giao dịch'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+
+    <div class="content-wrapper">
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">Cảnh báo giao dịch</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item">Tạo giao dịch</li>
+                            <li class="breadcrumb-item active">Cảnh báo đáng ngờ</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Cảnh báo giao dịch đáng ngờ</h3>
+                    </div>
+
+                    <!--Giao dịch đáng ngờ          -->
+                    <div class="card-body">
+                        <div    class="alert alert-danger"
+                                th:if="${param.frequency}!=null"
+                                th:text="|Cảnh báo khách hàng đã thực hiện ${param.frequency} lần giao dịch trong ngày|"></div>
+
+                        <div    class="alert alert-danger"
+                                th:if="${param.totalAmount}!=null"
+                                th:text="|Cảnh báo khách hàng đã giao dịch ${param.totalAmount} VND|"></div>
+
+                        <h5>Thông tin giao dịch:</h5>
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Tên khách hàng</th>
+                                <th>Số tiền (VND)</th>
+                                <th>Ngày giao dịch</th>
+                                <th>Chi nhánh</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td th:text="${transaction.id}"></td>
+                                <td th:text="${transaction.customer.name}"></td>
+                                <td th:text="${transaction.amount}"></td>
+                                <td th:text="${transaction.createdDateTmp}"></td>
+                                <td th:text="${transaction.branch.name}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="d-flex form-group mt-2">
+                            <a th:href="@{/gdv/transactions?status=finish}" class="btn btn-primary btn-sm mx-1">Báo cáo giao dịch đáng ngờ</a>
+                            <button th:onclick="|deleteTransaction(${transaction.id})|" class="btn btn-danger btn-sm mx-1">Hủy giao dịch</button>
+                        </div>
+
+
+                    </div>
+                    <!--end Giao dịch đáng ngờ       -->
+
+
+                </div>
+
+
+            </div>
+        </section>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<script>
+    function deleteTransaction (transactionId){
+        fetch(`http://localhost:8080/api/transaction/${transactionId}/delete`, {
+            method: 'delete'
+        }).then(response => {
+            window.location.href = "/gdv/transactions"
+        });
+    }
+</script>
+</body>
+</html>

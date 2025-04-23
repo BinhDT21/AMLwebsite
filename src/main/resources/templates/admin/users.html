@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(title=${'Quản lý người dùng'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+    <div th:replace="~{fragments/preloader :: preloader}"></div>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card card-dark mt-5">
+
+                    <div class="card-header ">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h3 class="card-title">Quản lý người dùng</h3>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <a th:href="@{/admin/users/user-create}" class="btn btn-sm btn-outline-primary float-sm-right">
+                                    Thêm người dùng
+                                </a>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <table class="table table-striped table-sm">
+                            <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Họ và tên</th>
+                                <th>Email</th>
+                                <th>Điện thoại di động</th>
+                                <th>Điện thoại cố định</th>
+                                <th>Tên đăng nhập</th>
+                                <th>Vai trò</th>
+                                <th>Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.name}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td th:text="${user.phoneNumber}"></td>
+                                <td th:text="${user.officePhone}"></td>
+                                <td th:text="${user.username}"></td>
+                                <td th:text="${user.role}"></td>
+                                <td>
+                                    <a th:href="@{/admin/users/user-detail/{userId}(userId = ${user.id})}" class="btn btn-outline-primary btn-sm">Chi tiết và chỉnh sửa</a>
+                                    <a id="btnDeleteUser" th:onclick="|deleteUser(${user.id})|" class="btn btn-outline-danger btn-sm">Xóa</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <ul th:if="${totalPages != 0}" class="pagination mt-2">
+                            <li th:classappend="${currentPage == 0} ? 'disabled' : ''" class="page-item">
+                                <a class="page-link btn"
+                                   th:onclick="|changePage(${currentPage-1})|">Previous</a>
+                            </li>
+                            <li th:each="pageNum : ${#numbers.sequence(0, totalPages-1)}" class="page-item"
+                                th:classappend="${currentPage == pageNum} ? 'active' : '' ">
+                                <a class="page-link btn"
+                                   th:onclick="|changePage(${pageNum})|"
+                                   th:text="${pageNum + 1}"></a>
+                            </li>
+                            <li th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : '' " class="page-item">
+                                <a class="page-link btn" th:onclick="|changePage(${currentPage+1})|">Next</a>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <div id="overlay" class="overlay" style="display:none">
+                        <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<script>
+    function changePage (pageNum){
+        let currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set("page", pageNum);
+
+        window.location.href = currentUrl.href;
+    };
+
+
+
+    function deleteUser (userId){
+        fetch(`http://localhost:8080/admin/users/user-delete/${userId}`, {
+            method: 'DELETE'
+        }).then(response => {
+            window.location.href = "/admin/users"
+        });
+    }
+</script>
+</body>
+</html>

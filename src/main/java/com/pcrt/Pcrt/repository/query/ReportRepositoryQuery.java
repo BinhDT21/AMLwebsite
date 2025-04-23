@@ -65,7 +65,6 @@ public class ReportRepositoryQuery {
 
         LocalDate createdDate = LocalDate.now();
 
-
         if(params.containsKey("created-date") && !params.get("created-date").isEmpty()){
             String createdDateStr = params.get("created-date");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

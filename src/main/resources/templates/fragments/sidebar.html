@@ -156,7 +156,7 @@
 
                 <li class="nav-item">
                     <a th:href="@{#}" class="nav-link">
-                        <i class="nav-icon fas fa-user text-danger"></i>
+                        <i class="nav-icon fas fa-user text-success"></i>
                         <p>Trưởng phòng AML <i class="fas fa-angle-left right"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
@@ -184,6 +184,21 @@
                             <a th:href="@{/aml-manager/transactions?status=risk}" class="nav-link">
                                 <i class="nav-icon fas fa-list"></i>
                                 <p>Danh sách giao dịch</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a th:href="@{#}" class="nav-link">
+                        <i class="nav-icon fas fa-user-gear text-danger"></i>
+                        <p>Admin <i class="fas fa-angle-left right"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a th:href="@{/admin/users}" class="nav-link">
+                                <i class="nav-icon fas fa-user-pen"></i>
+                                <p>Quản lý người dùng</p>
                             </a>
                         </li>
                     </ul>

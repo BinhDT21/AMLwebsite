@@ -1,5 +1,6 @@
 package com.pcrt.Pcrt.repository.query;
 
+import com.pcrt.Pcrt.entities.User;
 import com.pcrt.Pcrt.entities.UserCustomer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserCustomerQuery {
@@ -22,4 +24,6 @@ public class UserCustomerQuery {
 
         return query.getResultList();
     }
+
+
 }

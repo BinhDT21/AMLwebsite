@@ -2,6 +2,10 @@ package com.pcrt.Pcrt.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -13,20 +17,33 @@ public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank(message = "Yêu cầu nhập tên")
+    @NotNull(message = "Yêu cầu nhập tên")
     private String name;
+    @NotBlank(message = "Yêu cầu nhập email")
+    @NotNull(message = "Yêu cầu nhập email")
     private String email;
     @Column(name = "phone_number")
+    @NotBlank(message = "Yêu cầu nhập số điện thoại")
+    @NotNull(message = "Yêu cầu nhập số điện thoại")
+    @Size(min = 10, max = 11, message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
     @Column(name = "office_phone")
+    @NotBlank(message = "Yêu cầu nhập số điện thoại")
+    @NotNull(message = "Yêu cầu nhập số điện thoại")
+    @Size(min = 10, max = 11, message = "Số điện thoại không hợp lệ")
     private String officePhone;
-
     @ManyToOne
     @JoinColumn(name = "address_id")
+    @Valid
     private Address address;
+    @NotBlank(message = "Yêu cầu nhập tên đăng nhập")
+    @NotNull(message = "Yêu cầu nhập tên đăng nhập")
     private String username;
+
     private String password;
 
-    // GDV KSV AML_MANAGER AML_STAFF
+    // GDV KSV AML_MANAGER AML_STAFF ADMIN
     private String role;
 
     @OneToMany(mappedBy = "user")

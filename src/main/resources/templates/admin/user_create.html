@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(title=${'Thêm người dùng mới'})}"></head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+  <div th:replace="~{fragments/preloader :: preloader}"></div>
+  <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+  <aside th:replace="~{fragments/sidebar :: sidebar(currentUser = ${currentUser})}"></aside>
+
+  <div class="content-wrapper">
+    <section class="content">
+      <div class="container-fluid">
+        <div class="card card-dark mt-5">
+
+          <div class="card-header ">
+
+            <div class="row">
+              <div class="col-sm-6">
+                <h3 class="card-title">Thêm người dùng mới</h3>
+              </div>
+
+              <div class="col-sm-6">
+                <button onclick="submitFormCreateUser()"
+                        class="btn btn-sm btn-outline-primary float-sm-right">
+                  Lưu người dùng
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-body">
+            <form id="createForm" th:action="@{/admin/users/user-create}"
+                  method="post" th:object="${user}">
+              <div class="px-5">
+                <table class="table table-borderless table-sm ">
+                  <thead>
+
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <td><b>Họ và tên:</b></td>
+                    <td colspan="3">
+                      <input type="text" class="form-control form-control-sm"
+                             placeholder="Tên người dùng" th:field="*{name}">
+                      <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Tên đăng nhập:</b></td>
+                    <td colspan="3">
+                      <input type="text" class="form-control form-control-sm"
+                             placeholder="username" th:field="*{username}">
+                      <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Mật khẩu:</b></td>
+                    <td colspan="3">
+                      <input type="password" class="form-control form-control-sm"
+                             placeholder="Nhập mật khẩu" th:field="*{password}">
+                      <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Email:</b></td>
+                    <td colspan="3">
+                      <input type="text" class="form-control form-control-sm"
+                             placeholder="Email" th:field="*{email}">
+                      <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Điện thoại di động:</b></td>
+                    <td colspan="3">
+                      <input type="text" class="form-control form-control-sm"
+                             placeholder="phoneNumber" th:field="*{phoneNumber}">
+                      <div th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Điện thoại cố định:</b></td>
+                    <td colspan="3">
+                      <input type="text" class="form-control form-control-sm"
+                             placeholder="officePhone" th:field="*{officePhone}">
+                      <div th:if="${#fields.hasErrors('officePhone')}" th:errors="*{officePhone}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>Vai trò:</b></td>
+                    <td colspan="3">
+                      <select id="role" th:field="*{role}"
+                              class="form-control select2bs4 form-control-sm">
+
+                        <option value="GDV">Giao dịch viên</option>
+                        <option value="KSV">Kiểm soát viên</option>
+                        <option value="AML_MANAGER">Trưởng phòng AML</option>
+                        <option value="AML_STAFF">Nhân viên AML</option>
+                        <option value="ADMIN">Quản trị viên</option>
+                      </select>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><b>Chi nhánh làm việc:</b></td>
+                    <td colspan="3">
+                      <select id="branch" th:field="*{branch.id}"
+                              class="form-control select2bs4 form-control-sm">
+
+                        <option th:each="branch : ${branches}"
+                                th:value="${branch.id}"
+                                th:text="${branch.name}"></option>
+
+                      </select>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><b>Địa chỉ:</b></td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm col mx-1"
+                             placeholder="quận/huyện" th:field="*{address.district}">
+                      <div th:if="${#fields.hasErrors('address.district')}" th:errors="*{address.district}" class="text-danger"></div>
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm col"
+                             placeholder="tỉnh/thành phố" th:field="*{address.province}">
+                      <div th:if="${#fields.hasErrors('address.province')}" th:errors="*{address.province}" class="text-danger"></div>
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm col"
+                             placeholder="quốc gia" th:field="*{address.country}">
+                      <div th:if="${#fields.hasErrors('address.country')}" th:errors="*{address.country}" class="text-danger"></div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </form>
+
+          </div>
+
+          <div id="overlay" class="overlay" style="display:none">
+            <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer th:replace="~{fragments/footer :: footer}"></footer>
+</div>
+<div th:replace="~{fragments/commonScript :: commonScript}"></div>
+
+<script>
+  function submitFormCreateUser () {
+      let form = document.getElementById("createForm");
+
+      form.submit();
+  }
+</script>
+
+</body>
+</html>

@@ -13,7 +13,4 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
-    @Query("SELECT c FROM Customer c WHERE c.status = :status")
-    List<Customer> loadCustomerByStatus(@Param("status") String status);
-
 }

@@ -13,6 +13,7 @@ public class UserCreateRequest {
     private int branchId;
     private String officePhone;
 
+
     public String getOfficePhone() {
         return officePhone;
     }

@@ -46,7 +46,7 @@
                         <div class="row">
 
                             <!-- filter by status    -->
-                            <div class="form-group col-3">
+                            <div class="form-group col-sm-2">
                                 <select onchange="changeStatusSelect()" id="statusSelect"
                                         class="form-control form-control-sm select2bs4" style="width: 100%;">
                                     <option selected="selected" value="finish">Hoàn thành</option>
@@ -59,7 +59,7 @@
                             <!-- end filter by status    -->
 
                             <!-- form filter by createdDate    -->
-                            <div class="form-group col-3 d-flex">
+                            <div class="form-group col-sm-2 d-flex">
                                 <!--                            <button id="btnDateBefore" class="btn btn-secondary btn-sm mx-1"><i-->
                                 <!--                                    class="fas fa-arrow-left"></i></button>-->
                                 <div id="createdDateFilter" class="input-group date mx-1" data-target-input="nearest">
@@ -80,7 +80,7 @@
                         <!-- end filter block    -->
 
 
-                        <table class="table table-bordered table-sm">
+                        <table class="table table-striped table-sm">
                             <thead>
                             <tr>
                                 <th></th>
@@ -101,14 +101,11 @@
                                 <td th:text="${transaction.createdDateTmp}"></td>
                                 <td th:text="${transaction.branch.name}"></td>
                                 <td>
-                                    <a th:href="@{/aml-manager/transactions/transaction-detail/{transactionId}(transactionId=${transaction.id})}" class="btn btn-primary btn-sm mx-1">Xem chi tiết</a>
+                                    <a th:href="@{/aml-manager/transactions/transaction-detail/{transactionId}(transactionId=${transaction.id})}" class="btn btn-outline-primary btn-sm mx-1">Xem chi tiết</a>
+                                    <a th:if="${transaction.status} == risk" th:onclick="|updateTransactionStatus(${transaction.id}, 'report')|" class="btn btn-outline-warning btn-sm">Yêu cầu lập báo cáo</a>
+                                    <a th:if="${transaction.status} == risk" th:onclick="|updateTransactionStatus(${transaction.id}, 'pass')|" class="btn btn-outline-success btn-sm">Tiếp tục giao dịch</a>
                                 </td>
-                                <td th:if="${transaction.status} == risk">
-                                    <a th:onclick="|updateTransactionStatus(${transaction.id}, 'report')|" class="btn btn-warning btn-sm">Yêu cầu lập báo cáo</a>
-                                </td>
-                                <td th:if="${transaction.status} == risk">
-                                    <a th:onclick="|updateTransactionStatus(${transaction.id}, 'pass')|" class="btn btn-success btn-sm">Tiếp tục giao dịch</a>
-                                </td>
+
                             </tr>
                             </tbody>
                         </table>

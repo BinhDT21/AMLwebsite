@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Controller
@@ -43,6 +45,12 @@ public class AmlStaffController {
         DateTimeFormatter formatterObject = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (Transaction t : reviewRecordsByAmount) {
             t.setCreatedDateTmp(formatterObject.format(t.getCreatedDate()));
+        }
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        for(Transaction t: reviewRecordsByAmount){
+            double amount = t.getAmount().doubleValue();
+            t.setAmountTmp(numberFormat.format(amount));
         }
         // bind danh sách transaction được query theo amount >= 400 triệu
         model.addAttribute("reviewRecordsByAmount", reviewRecordsByAmount);
@@ -142,6 +150,7 @@ public class AmlStaffController {
         int page = params.get("page")!=null?Integer.parseInt(params.get("page")):0;
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", reportList.getTotalPages());
+
 
         return "aml-staff/reports";
     }

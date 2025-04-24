@@ -46,7 +46,7 @@
                         <div class="row">
 
                             <!-- filter by status    -->
-                            <div class="form-group col-3">
+                            <div class="form-group col-sm-2">
                                 <select onchange="changeStatusSelect()" id="statusSelect"
                                         class="form-control form-control-sm select2bs4" style="width: 100%;">
                                     <option selected="selected" value="finish">Hoàn thành</option>
@@ -59,7 +59,7 @@
                             <!-- end filter by status    -->
 
                             <!-- form filter by createdDate    -->
-                            <div class="form-group col-3 d-flex">
+                            <div class="form-group col-sm-2 d-flex">
                                 <!--                            <button id="btnDateBefore" class="btn btn-secondary btn-sm mx-1"><i-->
                                 <!--                                    class="fas fa-arrow-left"></i></button>-->
                                 <div id="createdDateFilter" class="input-group date mx-1" data-target-input="nearest">
@@ -99,17 +99,17 @@
                                 <td th:text="${transaction.createdDateTmp}"></td>
                                 <td th:text="${transaction.branch.name}"></td>
                                 <td class="d-flex">
-                                    <a th:href="@{/gdv/transactions/transaction-detail/{transactionId}(transactionId=${transaction.id})}" class="btn btn-primary btn-sm mx-1">Xem chi tiết</a>
+                                    <a th:href="@{/gdv/transactions/transaction-detail/{transactionId}(transactionId=${transaction.id})}" class="btn btn-outline-primary btn-sm mx-1">Xem chi tiết</a>
 
-                                    <a th:onclick="|createReport(${transaction.id})|" th:if="${transaction.status} == report" class="btn btn-success btn-sm mx-1">Lập báo cáo</a>
+                                    <a th:onclick="|createReport(${transaction.id})|" th:if="${transaction.status} == report" class="btn btn-outline-success btn-sm mx-1">Lập báo cáo</a>
 
-                                    <a th:onclick="|createTransactionPass(${transaction.id})|" th:if="${transaction.status} == pass" class="btn btn-success btn-sm mx-1">Tiếp tục giao dịch</a>
+                                    <a th:onclick="|createTransactionPass(${transaction.id})|" th:if="${transaction.status} == pass" class="btn btn-outline-success btn-sm mx-1">Tiếp tục giao dịch</a>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
 
-                        <ul class="pagination mt-2">
+                        <ul th:if="${totalPages} != 0" class="pagination mt-2">
                             <li th:classappend="${currentPage == 0} ? 'disabled' : ''" class="page-item">
                                 <a class="page-link btn"
                                    th:onclick="|changePage(${currentPage-1})|" >Previous</a>

@@ -50,7 +50,7 @@
                                 </div>
 
 
-                                <button id="btnRefresh" class="btn btn-sm btn-primary ml-2">Refresh</button>
+                                <button id="btnRefresh" class="btn btn-sm btn-outline-primary ml-2">Refresh</button>
 
                                 <button style="display:none" id="btnRefreshSpinner" class="btn btn-primary" type="button" disabled>
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -61,18 +61,18 @@
 
 
                             <!--Table 1-->
-                            <table id="table1" class="table table-sm table-bordered mt-2 mb-2">
+                            <table id="table1" class="table table-sm table-striped my-2">
                                 <thead>
                                 <tr>
                                     <th></th>
                                     <th>Tên khách hàng</th>
                                     <th>Ngày sinh</th>
                                     <th>Địa chỉ</th>
-                                    <th>Thành phố</th>
-                                    <th>Quốc tịch</th>
+<!--                                    <th>Thành phố</th>-->
+<!--                                    <th>Quốc tịch</th>-->
                                     <th>CCCD</th>
                                     <th>Hộ chiếu</th>
-                                    <th>loại khách hàng</th>
+<!--                                    <th>loại khách hàng</th>-->
                                     <th>Độ rủi ro</th>
                                     <th>Số tiền giao dịch</th>
 
@@ -85,16 +85,16 @@
                                         <a th:onclick="|getCustomerDetail(${transaction.customer.id})|"
                                            data-toggle="modal"
                                            data-target="#modelCustomerInfo"
-                                           th:href="@{#}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> </a>
+                                           th:href="@{#}" class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i> </a>
                                     </td>
                                     <td th:text="${transaction.customer.name}"></td>
                                     <td th:text="${transaction.customer.dob}"></td>
                                     <td th:text="${transaction.customer.address}"></td>
-                                    <td th:text="${transaction.customer.city}"></td>
-                                    <td th:text="${transaction.customer.country}"></td>
+<!--                                    <td th:text="${transaction.customer.city}"></td>-->
+<!--                                    <td th:text="${transaction.customer.country}"></td>-->
                                     <td th:text="${transaction.customer.nationalId}"></td>
                                     <td th:text="${transaction.customer.passport}"></td>
-                                    <td th:text="${transaction.customer.type}"></td>
+<!--                                    <td th:text="${transaction.customer.type}"></td>-->
 
                                     <td th:if="${transaction.customer.riskClassification == 'low'}">Thấp</td>
                                     <td class="text-warning"
@@ -104,16 +104,16 @@
                                         th:if="${transaction.customer.riskClassification == 'high'}">Cao
                                     </td>
 
-                                    <td th:text="${transaction.amount}"></td>
+                                    <td th:text="${transaction.amountTmp}"></td>
 
                                     <td class="d-flex">
                                         <button th:data-nationalId="${transaction.customer.nationalId}"
                                                 th:onclick="|createReview(${transaction.customer.id},'pass')|"
-                                                class="updateListTransactionStatusBtn btn btn-danger btn-sm mx-1">Pass
+                                                class="updateListTransactionStatusBtn btn btn-outline-danger btn-sm mx-1">Pass
                                         </button>
                                         <button th:data-nationalId="${transaction.customer.nationalId}"
                                                 th:onclick="|createReview(${transaction.customer.id},'fail')|"
-                                                class="updateListTransactionStatusBtn btn btn-secondary btn-sm mx-1">
+                                                class="updateListTransactionStatusBtn btn btn-outline-secondary btn-sm mx-1">
                                             Fail
                                         </button>
                                     </td>
@@ -123,18 +123,18 @@
 
 
                             <!--Table 2-->
-                            <table id="table2" style="display:none" class="table table-sm table-bordered mt-2 mb-2">
+                            <table id="table2" style="display:none" class="table table-sm table-striped my-2">
                                 <thead>
                                 <tr>
                                     <th></th>
                                     <th>Tên khách hàng</th>
                                     <th>Ngày sinh</th>
                                     <th>Địa chỉ</th>
-                                    <th>Thành phố</th>
-                                    <th>Quốc tịch</th>
+<!--                                    <th>Thành phố</th>-->
+<!--                                    <th>Quốc tịch</th>-->
                                     <th>CCCD</th>
                                     <th>Hộ chiếu</th>
-                                    <th>loại khách hàng</th>
+<!--                                    <th>loại khách hàng</th>-->
                                     <th>Độ rủi ro</th>
                                     <th>Số giao dịch trong ngày</th>
                                     <th></th>
@@ -146,16 +146,16 @@
                                         <a th:onclick="|getCustomerDetail(${transaction.customer.id})|"
                                            data-toggle="modal"
                                            data-target="#modelCustomerInfo"
-                                           th:href="@{#}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></a>
+                                           th:href="@{#}" class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i></a>
                                     </td>
                                     <td th:text="${transaction.customer.name}"></td>
                                     <td th:text="${transaction.customer.dob}"></td>
                                     <td th:text="${transaction.customer.address}"></td>
-                                    <td th:text="${transaction.customer.city}"></td>
-                                    <td th:text="${transaction.customer.country}"></td>
+<!--                                    <td th:text="${transaction.customer.city}"></td>-->
+<!--                                    <td th:text="${transaction.customer.country}"></td>-->
                                     <td th:text="${transaction.customer.nationalId}"></td>
                                     <td th:text="${transaction.customer.passport}"></td>
-                                    <td th:text="${transaction.customer.type}"></td>
+<!--                                    <td th:text="${transaction.customer.type}"></td>-->
 
                                     <td th:if="${transaction.customer.riskClassification == 'low'}">Thấp</td>
                                     <td class="text-warning"
@@ -170,11 +170,11 @@
                                     <td class="d-flex">
                                         <button th:data-nationalId="${transaction.customer.nationalId}"
                                                 th:onclick="|createReview(${transaction.customer.id},'pass')|"
-                                                class="updateListTransactionStatusBtn btn btn-sm btn-danger mx-1">Pass
+                                                class="updateListTransactionStatusBtn btn btn-sm btn-outline-danger mx-1">Pass
                                         </button>
                                         <button th:data-nationalId="${transaction.customer.nationalId}"
                                                 th:onclick="|createReview(${transaction.customer.id},'fail')|"
-                                                class="updateListTransactionStatusBtn btn btn-sm btn-secondary mx-1">
+                                                class="updateListTransactionStatusBtn btn btn-sm btn-outline-secondary mx-1">
                                             Fail
                                         </button>
                                     </td>
@@ -275,8 +275,8 @@
 
     function toggleTable(){
         var selectedValue = document.getElementById("inputGroupSelect").value;
-        document.getElementById("table1").style.display = (selectedValue === "0") ? "block" : "none";
-        document.getElementById("table2").style.display = (selectedValue === "1") ? "block" : "none";
+        document.getElementById("table1").style.display = (selectedValue === "0") ? "" : "none";
+        document.getElementById("table2").style.display = (selectedValue === "1") ? "" : "none";
     }
 
 

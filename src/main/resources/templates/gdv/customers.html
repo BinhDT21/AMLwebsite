@@ -150,8 +150,8 @@
                             <th>Họ và Tên</th>
                             <th>Ngày sinh</th>
                             <th>Địa chỉ</th>
-                            <th>Thành phố</th>
-                            <th>Quốc tịch</th>
+<!--                            <th>Thành phố</th>-->
+<!--                            <th>Quốc tịch</th>-->
                             <th>CCCD/MST</th>
                             <th>Hộ chiếu</th>
                             <th>Loại khách hàng</th>
@@ -166,13 +166,13 @@
                             <td>
                                 <a th:onclick="|getCustomerDetail(${customer.id})|" data-toggle="modal"
                                    data-target="#modelCustomerInfo"
-                                   th:href="@{#}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
+                                   th:href="@{#}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
                             </td>
                             <td th:text="${customer.name}"></td>
                             <td th:text="${customer.dob}"></td>
                             <td th:text="${customer.address}"></td>
-                            <td th:text="${customer.city}"></td>
-                            <td th:text="${customer.country}"></td>
+<!--                            <td th:text="${customer.city}"></td>-->
+<!--                            <td th:text="${customer.country}"></td>-->
                             <td th:text="${customer.nationalId}"></td>
                             <td th:text="${customer.passport}"></td>
                             <td th:text="${customer.type}"></td>
@@ -187,15 +187,15 @@
                             <td class="text-success" th:if="${customer.status == 'checked'}">Đã kiểm tra</td>
 
                             <td th:if="${customer.status == 'checked'}">
-                                <a th:href="@{/gdv/customers/result/{id}(id=${customer.id})}"
-                                >Xem</a>
+                                <a class="btn btn-sm btn-outline-success" th:href="@{/gdv/customers/result/{id}(id=${customer.id})}"
+                                >Xem yêu cầu</a>
                             </td>
                             <td th:if="${customer.status != 'checked'}"></td>
 
                         </tr>
                     </table>
 
-                    <ul class="pagination ml-2">
+                    <ul th:if="${totalPages} != 0" class="pagination ml-2">
                         <!--Button Prevous-->
                         <li th:classappend="${currentPage == 0} ? 'disabled' : ''" class="page-item">
                             <a class="page-link btn btn-sm" th:onclick="|changePage(${currentPage-1})|">Previous</a>
@@ -206,13 +206,13 @@
                         <li th:each="pageNum : ${#numbers.sequence(0, totalPages-1)}" class="page-item"
                             th:classappend="${currentPage == pageNum} ? 'active' : '' ">
                             <a class="page-link btn"
-                               th:text="${pageNum + 1}"  th:onclick="|changePage(${pageNum})|"></a>
+                               th:text="${pageNum + 1}" th:onclick="|changePage(${pageNum})|"></a>
                         </li>
 
                         <!--Button Next-->
                         <li th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : '' " class="page-item">
                             <a class="page-link btn btn-sm"
-                                th:onclick="|changePage(${currentPage+1})|">Next</a>
+                               th:onclick="|changePage(${currentPage+1})|">Next</a>
                         </li>
                     </ul>
                 </div>
@@ -232,7 +232,6 @@
 <div data-backdrop="static" class="modal fade" id="modelCustomerInfo">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
-
 
             <div class="modal-header">
                 <h5 class="modal-title">Thông tin chi tiết khách hàng</h5>
@@ -323,6 +322,24 @@
         })
         const data = await response.json();
 
+        let customerRiskHtml = "";
+        if(data.customer.riskClassification == 'low'){
+             customerRiskHtml = `<td class="text-success">Rủi ro thấp</td>`;
+        }else if(data.customer.riskClassification == 'medium'){
+             customerRiskHtml =  `<td class="text-warning">Rủi ro trung bình</td>`;
+        }else{
+             customerRiskHtml =  `<td class="text-danger">Rủi ro cao</td>`;
+        }
+
+        let customerStatusHtml = "";
+        if(data.customer.status == 'saved'){
+            customerStatusHtml = `<td class="text-secondary">Đã lưu</td>`;
+        }else if(data.customer.status == 'waiting'){
+            customerStatusHtml = `<td class="text-warning">Chờ kiểm tra</td>`;
+        }else{
+            customerStatusHtml = `<td class="text-success">Đã kiểm tra</td>`;
+        }
+
         const newRow =  document.createElement("tr");
         newRow.innerHTML = `
             <td>${data.customer.id}</td>
@@ -334,8 +351,9 @@
              <td>${data.customer.nationalId}</td>
              <td>${data.customer.passport}</td>
              <td>${data.customer.type}</td>
-             <td>${data.customer.riskClassification}</td>
-             <td>${data.customer.status}</td>`;
+              ${customerRiskHtml}
+              ${customerStatusHtml}
+             `;
 
 
         tableBody.appendChild(newRow);

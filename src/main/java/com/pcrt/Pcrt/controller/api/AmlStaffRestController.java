@@ -10,10 +10,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -63,8 +65,13 @@ public class AmlStaffRestController {
         //format date for ui
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for(Transaction t: transactionList){
-
             t.setCreatedDateTmp(dateTimeFormatter.format(t.getCreatedDate()));
+        }
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        for(Transaction t: transactionList){
+            double amount = t.getAmount().doubleValue();
+            t.setAmountTmp(numberFormat.format(amount));
         }
 
         return transactionList;

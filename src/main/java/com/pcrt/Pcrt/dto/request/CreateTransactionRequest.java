@@ -1,10 +1,15 @@
 package com.pcrt.Pcrt.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 
 public class CreateTransactionRequest {
 
     private int transactionId;
+    @NotBlank(message = "Vui lòng nhập số tiền giao dịch")
+    @NotNull(message = "Vui lòng nhập số tiền giao dịch")
     private String amount;
     private String nationalId;
 

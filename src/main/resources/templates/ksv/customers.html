@@ -42,7 +42,7 @@
                         <h3 class="card-title">Danh sách khách hàng</h3>
                     </div>
                     <!-- /.card-header -->
-                    <table class="table">
+                    <table class="table table-sm table-striped">
                         <tr>
                             <th>Họ và Tên</th>
                             <th>Ngày sinh</th>
@@ -71,7 +71,7 @@
                             <td class="text-danger" th:if="${customer.riskClassification == 'high'}">Cao</td>
 
                             <td>
-                                <a class="btn btn-primary" th:href="@{/ksv/customers/detail/{id}(id = ${customer.id})}">Kiểm tra</a>
+                                <a class="btn btn-outline-primary btn-sm" th:href="@{/ksv/customers/detail/{id}(id = ${customer.id})}">Kiểm tra</a>
                             </td>
                         </tr>
                     </table>

@@ -132,7 +132,7 @@ public class TransactionService {
         long totalTransactions = transactionRepositoryQuery.countTransaction(params);
         int page = params.get("page")!=null?Integer.parseInt(params.get("page")):0;
 
-        Page<Transaction> pageTransaction = new PageImpl<>(transactionList, PageRequest.of(page,10), totalTransactions);
+        Page<Transaction> pageTransaction = new PageImpl<>(transactionList, PageRequest.of(page,20), totalTransactions);
 
         return pageTransaction;
     }

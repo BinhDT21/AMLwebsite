@@ -69,6 +69,8 @@
                             <div class="form-group">
                                 <input class="form-control form-control-sm" th:field="*{amount}" type="text"
                                        placeholder="Nhập số tiền giao dịch">
+
+                                <div th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}" class="text-danger"></div>
                             </div>
 
                             <h5><b>Thông tin người thực hiện giao dịch:</b></h5>
@@ -223,6 +225,10 @@
 
             }catch(err){
                 console.log("Lỗi api lấy thông tin customer " + err);
+                document.getElementById("customerNotFoundAlert").style.display = "";
+                document.getElementById("customerDiv").style.display = "none";
+
+                document.getElementById("btnCreate").style.display = "none";
             }finally{
                 spinner.style.display = "none";
                 btnSearchCustomer.style.display = "";

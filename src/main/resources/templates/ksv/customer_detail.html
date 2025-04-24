@@ -42,7 +42,7 @@
                         <h3 class="card-title">Thông tin khách hàng</h3>
                     </div>
                     <!-- /.card-header -->
-                    <table class="table">
+                    <table class="table table-striped table-sm">
                         <tr>
                             <th>Họ và Tên</th>
                             <th>Ngày sinh</th>
@@ -64,9 +64,9 @@
                             <td th:text="${customer.nationalId}"></td>
                             <td th:text="${customer.passport}"></td>
                             <td th:text="${customer.type}"></td>
-                            <td th:if="${customer.riskClassification == 'low'}">Thấp</td>
-                            <td th:if="${customer.riskClassification == 'medium'}">Trung bình</td>
-                            <td th:if="${customer.riskClassification == 'high'}">Cao</td>
+                            <td th:classappend="text-secondary" th:if="${customer.riskClassification == 'low'}">Thấp</td>
+                            <td th:classappend="text-warning" th:if="${customer.riskClassification == 'medium'}">Trung bình</td>
+                            <td th:classappend="text-danger" th:if="${customer.riskClassification == 'high'}">Cao</td>
                         </tr>
                     </table>
                 </div>
@@ -93,13 +93,16 @@
                         <div th:each="form : ${additionalForms}" class="form-group">
                             <a target="_blank" th:href="${form.filePath}">Giấy bổ sung thông tin</a>
                         </div>
-                        <div class="form-group">
-                            <label>Ý kiến của kiểm soát viên:</label>
-                            <input type="text" class="form-control" th:field="*{opinion.message}">
+                        <label for="opinion">Ý kiến của kiểm soát viên:</label>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <input id="opinion" type="text" class="form-control form-control-sm" th:field="*{opinion.message}">
+                            </div>
+                            <div class="form-group col-sm">
+                                <button type="submit" class="btn btn-primary btn-sm">Xác nhận</button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Xác nhận</button>
-                        </div>
+
                     </form>
 
                 </div>
@@ -113,7 +116,7 @@
                     <!-- /.card-header -->
 
 
-                    <table class="table" th:if="${!checkingResult.blacklists.isEmpty()}">
+                    <table class="table table-striped table-sm" th:if="${!checkingResult.blacklists.isEmpty()}">
                         <tr>
                             <th>Họ và Tên</th>
                             <th>Ngày sinh</th>

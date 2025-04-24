@@ -114,15 +114,15 @@ public class TransactionRepositoryQuery {
                     "where " + predicate +
                     "order by t.id desc";
 
-        System.out.println(jpql);
 
         Query query = entityManager.createQuery(jpql, Transaction.class);
+
         if(createdDate != null){
             query.setParameter("createdDate", createdDate);
         }
 
         int page = params.get("page")!=null?Integer.parseInt(params.get("page")):0;
-        int size = 10;
+        int size = 20;
         query.setFirstResult(page * size);
         query.setMaxResults(size);
 
@@ -132,9 +132,9 @@ public class TransactionRepositoryQuery {
     public long countTransaction (Map<String,String> params){
         String jpql = "SELECT COUNT(t) FROM Transaction t WHERE 1=1 ";
 
-        if(params.containsKey("status") && !params.get("status").isEmpty()){
-            String status = params.get("status");
-
+        String status = params.get("status");
+        boolean filterByStatus = status!=null && !params.get("status").isEmpty();
+        if(filterByStatus){
             if(!status.equals("finish")){
                 jpql+= "AND t.status = :status ";
             }else
@@ -142,22 +142,28 @@ public class TransactionRepositoryQuery {
                 jpql += "AND (t.status = 'pending' or t.status = 'staff_checked') ";
             }
         }
-        LocalDate createdDate = LocalDate.now();
-        if(params.containsKey("created-date") && !params.get("created-date").isEmpty()){
-            createdDate = LocalDate.parse(params.get("created-date"));
+
+
+        LocalDate createdDateParam = params.get("created-date") != null ? LocalDate.parse(params.get("created-date")): null;
+        boolean filterByCreatedDate = createdDateParam!=null;
+        if(filterByCreatedDate){
+
+            jpql += "AND t.createdDate = :createdDateParam ";
         }
-        jpql += "AND t.createdDate = :createdDate ";
+
 
         Query query = entityManager.createQuery(jpql);
 
-        if(params.containsKey("status") && !params.get("status").isEmpty()){
-            if(!params.get("status").equals("finish")){
-               query.setParameter("status", params.get("status"));
+        if(filterByStatus){
+            if(!status.equals("finish")){
+               query.setParameter("status",status);
             }
         }
 
-        query.setParameter("createdDate", createdDate);
+        if(filterByCreatedDate)query.setParameter("createdDateParam", createdDateParam);
 
+        System.out.println("jpql: " + jpql);
+        System.out.println("count: " + (long)query.getSingleResult());
         return (long)query.getSingleResult();
     }
 }

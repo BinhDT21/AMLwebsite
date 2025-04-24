@@ -45,7 +45,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:if="${pcrt06List.size()==0}">
+                                    <tr th:if="${pcrt06List.getSize()==0}">
                                         <td colspan="6" class="alert alert-danger">Danh sách rỗng</td>
                                     </tr>
 
@@ -62,15 +62,18 @@
                                         <td th:if="${pcrt06.manager != null}" th:text="${pcrt06.manager.name}"></td>
                                         <td th:if="${pcrt06.manager == null}" class="text-danger">Chưa xác nhận</td>
 
-                                        <td class="row">
-                                            <a target="_blank" class="btn btn-danger btn-sm col mx-1"
+                                        <td class="d-flex">
+                                            <a target="_blank" class="btn btn-outline-danger btn-sm mx-1"
                                                th:href="${pcrt06.filePath}">Xem</a>
                                             <button id="btnUpdate" th:if="${pcrt06.ksv} == null"
                                                     th:onclick="|updatePCRT_06(${pcrt06.id})|"
-                                                    class="btn btn-primary btn-sm col mx-1">Xác nhận
+                                                    class="btn btn-outline-primary btn-sm  mx-1">Xác nhận
+                                            </button>
+                                            <button disabled th:if="${pcrt06.ksv} != null"
+                                                    class="btn btn-outline-primary btn-sm  mx-1">Xác nhận
                                             </button>
                                             <div style="display:none" id="spinner" class="text-center">
-                                                <div class="spinner-border text-primary col"></div>
+                                                <div class="spinner-border spinner-border-sm text-primary "></div>
                                             </div>
                                         </td>
                                     </tr>
@@ -96,7 +99,7 @@
 
 
                         </div>
-                        <div class="alert alert-danger" th:if="${pcrt06List.size()==0}">
+                        <div class="alert alert-danger" th:if="${pcrt06List.getSize()==0}">
                             Danh sách rỗng
                         </div>
                     </div>

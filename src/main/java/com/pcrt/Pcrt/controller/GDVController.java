@@ -150,7 +150,8 @@ public class GDVController {
 
         model.addAttribute("customers", customers);
         model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", customers.getTotalPages());
+
+        model.addAttribute("totalPages",customers.getTotalPages() );
         return "gdv/customers";
     }
 
@@ -379,9 +380,18 @@ public class GDVController {
 
 
     @PostMapping("/transaction/create")
-    public String createTransaction(Model model, @ModelAttribute(value = "transaction") CreateTransactionRequest createRequest) {
+    public String createTransaction(Model model, @ModelAttribute(value = "transaction") @Valid CreateTransactionRequest createRequest,
+                                    BindingResult bindingResult) {
 
         model.addAttribute("currentUser", userService.getCurrentUser());
+
+        if(bindingResult.hasErrors()){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            model.addAttribute("createdDate", formatter.format(LocalDate.now()));
+
+            return "gdv/transaction_create";
+        }
+
         if (createRequest.getTransactionId() == 0) {
             Transaction transaction = new Transaction();
 
@@ -432,18 +442,16 @@ public class GDVController {
             t.setCreatedDateTmp(formatter.format(t.getCreatedDate()));
         }
 
-
         //format amount
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
-//        numberFormat.setMaximumFractionDigits(2);
-//        numberFormat.setMinimumFractionDigits(2);
         for(Transaction t: transactions){
             double amount = t.getAmount().doubleValue();
             t.setAmountTmp(numberFormat.format(amount));
         }
 
         int page = params.get("page")!=null?Integer.parseInt(params.get("page")):0;
-        model.addAttribute("totalPages", transactions.getTotalPages());
+        int totalPages = transactions.getTotalPages();
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", page);
         model.addAttribute("transactions", transactions);
 

@@ -59,14 +59,17 @@
                     <td th:if="${pcrt07.manager != null}" th:text="${pcrt07.manager.name}"></td>
                     <td th:if="${pcrt07.manager == null}" class="text-danger">Chưa xác nhận</td>
 
-                    <td class="row">
-                      <a target="_blank" class="btn btn-danger btn-sm col"
+                    <td class="d-flex">
+                      <a target="_blank" class="btn btn-outline-danger btn-sm"
                          th:href="${pcrt07.filePath}">Xem</a>
                       <button id="btnUpdate" th:if="${pcrt07.manager} == null" th:onclick="|updatePCRT_07(${pcrt07.id})|"
-                              class="btn btn-primary btn-sm col mx-1 col">Xác nhận
+                              class="btn btn-outline-primary btn-sm mx-1">Xác nhận
+                      </button>
+                      <button disabled th:if="${pcrt07.manager} != null"
+                              class="btn btn-outline-primary btn-sm mx-1">Xác nhận
                       </button>
                       <div style="display:none" id="spinner" class="text-center">
-                        <div class="spinner-border text-primary col"></div>
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
                       </div>
                     </td>
                   </tr>

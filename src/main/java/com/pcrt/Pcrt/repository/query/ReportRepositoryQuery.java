@@ -21,36 +21,51 @@ public class ReportRepositoryQuery {
     private EntityManager entityManager;
 
 
-    public List<Report> getReportList (Map<String, String> params){
+    public List<Report> getReportList(Map<String, String> params) {
 
-        String createdDateParam = params.get("created-date");
-        LocalDate createdDate = LocalDate.now();
-        if(createdDateParam != null && !createdDateParam.isEmpty()){
-            // Nếu có truyền param thì gán ngay trên param vào biến createdDate
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            createdDate = LocalDate.parse(createdDateParam, formatter);
+        String jpql = "SELECT r FROM Report r WHERE 1=1 ";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        //filter by customer Id
+        String customerId = params.get("customer-id");
+        boolean filterByCustomerId = customerId != null && !customerId.isEmpty();
+        if (filterByCustomerId) {
+            jpql += "AND r.customer.id = :customerId ";
         }
 
-        // Định nghĩa khoảng thời gian từ 00:00:00 đến 23:59:59 của ngày cần lọc
-        LocalDateTime startOfDay = createdDate.atStartOfDay();
-        LocalDateTime endOfDay = createdDate.plusDays(1).atStartOfDay();
 
-        String predicate = "";
-        if(params.get("customer-id")!=null && !params.get("customer-id").isEmpty()){
-            int customerId = Integer.parseInt(params.get("customer-id"));
-            predicate += " and t.customer.id = " + customerId + " ";
+        //filter by created Date
+        LocalDateTime startDateFilter = params.get("start-date") != null ? LocalDate.parse(params.get("start-date"), formatter).atStartOfDay() : null;
+        LocalDateTime endDateFilter = params.get("end-date") != null ? LocalDate.parse(params.get("end-date"), formatter).plusDays(1).atStartOfDay() : null;
+
+        if (startDateFilter != null && endDateFilter == null) {
+            jpql += "AND r.createdDate >= :startDateFilter ";
+        }
+        if (endDateFilter != null && startDateFilter == null) {
+            jpql += "AND r.createdDate < :endDateFilter ";
+        }
+        if (startDateFilter != null && endDateFilter != null) {
+            jpql += "AND r.createdDate >= :startDateFilter AND r.createdDate < :endDateFilter ";
         }
 
-        String jpql = "select r " +
-                "from Report r " +
-                "where r.createdDate >= :startOfDay AND r.createdDate < :endOfDay " + predicate +
-                "order by r.id desc";
 
+        jpql += " ORDER BY r.id DESC ";
         Query query = entityManager.createQuery(jpql, Report.class);
-        query.setParameter("startOfDay", startOfDay);
-        query.setParameter("endOfDay", endOfDay);
 
-        int page = params.get("page")!=null?Integer.parseInt(params.get("page")):0;
+
+        //set param
+        if (filterByCustomerId) {
+            query.setParameter("customerId", customerId);
+        }
+        if (startDateFilter != null && endDateFilter == null) query.setParameter("startDateFilter", startDateFilter);
+        if (endDateFilter != null && startDateFilter == null) query.setParameter("endDateFilter", endDateFilter);
+        if (startDateFilter != null && endDateFilter != null) {
+            query.setParameter("startDateFilter", startDateFilter);
+            query.setParameter("endDateFilter", endDateFilter);
+        }
+        //set param
+
+        int page = params.get("page") != null ? Integer.parseInt(params.get("page")) : 0;
         int size = 10;
 
         query.setFirstResult(page * size);
@@ -59,31 +74,35 @@ public class ReportRepositoryQuery {
         return query.getResultList();
     }
 
-    public long countReport (Map<String, String> params){
+    public long countReport(Map<String, String> params) {
 
         String jpql = "SELECT COUNT(r) FROM Report r WHERE 1=1 ";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        LocalDate createdDate = LocalDate.now();
 
-        if(params.containsKey("created-date") && !params.get("created-date").isEmpty()){
-            String createdDateStr = params.get("created-date");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            createdDate = LocalDate.parse(createdDateStr, formatter);
+        LocalDateTime startDateFilter = params.get("start-date") != null ? LocalDate.parse(params.get("start-date"), formatter).atStartOfDay() : null;
+        LocalDateTime endDateFilter = params.get("end-date") != null ? LocalDate.parse(params.get("end-date"), formatter).plusDays(1).atStartOfDay() : null;
+
+        if (startDateFilter != null && endDateFilter == null) {
+            jpql += "AND r.createdDate >= :startDateFilter ";
         }
-
-        // Định nghĩa khoảng thời gian từ 00:00:00 đến 23:59:59 của ngày cần lọc
-        LocalDateTime startOfDay = createdDate.atStartOfDay();
-        LocalDateTime endOfDay = createdDate.plusDays(1).atStartOfDay();
-
-        jpql += "AND r.createdDate >= :startOfDay AND r.createdDate < :endOfDay ";
+        if (endDateFilter != null && startDateFilter == null) {
+            jpql += "AND r.createdDate < :endDateFilter ";
+        }
+        if (startDateFilter != null && endDateFilter != null) {
+            jpql += "AND r.createdDate >= :startDateFilter AND r.createdDate < :endDateFilter ";
+        }
 
         Query query = entityManager.createQuery(jpql);
 
-        query.setParameter("startOfDay", startOfDay);
-        query.setParameter("endOfDay", endOfDay);
+        if (startDateFilter != null && endDateFilter == null) query.setParameter("startDateFilter", startDateFilter);
+        if (endDateFilter != null && startDateFilter == null) query.setParameter("endDateFilter", endDateFilter);
+        if (startDateFilter != null && endDateFilter != null) {
+            query.setParameter("startDateFilter", startDateFilter);
+            query.setParameter("endDateFilter", endDateFilter);
+        }
 
-        return (long)query.getSingleResult();
-
+        return (long) query.getSingleResult();
     }
 
 }
